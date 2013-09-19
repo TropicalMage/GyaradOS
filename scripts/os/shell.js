@@ -85,7 +85,7 @@ function shellInit() {
     // date
     sc = new ShellCommand();
     sc.command = "date"
-    sc.description = "Displays the current date."
+    sc.description = "- Displays the current date."
     sc.function = shellDisplayDate;
     this.commandList[this.commandList.length] = sc;
 
@@ -99,28 +99,28 @@ function shellInit() {
     // load
     sc = new ShellCommand();
     sc.command = "load"
-    sc.description = "Loads data from the User Program Input."
+    sc.description = "- Loads data from the User Program Input."
     sc.function = shellLoadUPI;
     this.commandList[this.commandList.length] = sc;
 
     // whereami
     sc = new ShellCommand();
     sc.command = "whereami";
-    sc.description = "Displays your current location."
+    sc.description = "- Displays your current location."
     sc.function = shellShowLocation;
     this.commandList[this.commandList.length] = sc;
     
     // Global Thermonuclear War
     sc = new ShellCommand();
     sc.command = "globalthermonuclearwar";
-    sc.description = "Do you want to play a game?"
+    sc.description = "- Do you want to play a game?"
     sc.function = shellNuclearWar;
     this.commandList[this.commandList.length] = sc;
     
     // Game
     sc = new ShellCommand();
     sc.command = "game";
-    sc.description = "<string?> - Small Text adventure. "
+    sc.description = "- Illogical text adventure. Type 'game help' for instructions."
     sc.function = shellGame;
     this.commandList[this.commandList.length] = sc;
 
@@ -429,6 +429,9 @@ function shellGame(args) {
     if (args.length > 0) {
         var action = args[0];
         switch(action) {
+            case "help":
+                _StdIn.putText("Use bolded word for a command. 'game ___' to act. Lowercase only");
+                break;
             case "look":
                 _StdIn.putText("You see the giant beast, a ROCK, and a STICK.");
                 break;
@@ -440,7 +443,7 @@ function shellGame(args) {
                 break;
             case "dance":
                 if(this.game1 && this.game2) {
-                    _StdIn.putText("What's this?! Your sword is glowing. You know SUPER.");
+                    _StdIn.putText("What's this?! Your sword is glowing. You know SPECIAL.");
                 } else {
                     _StdIn.putText("You dance the night away. The monster can't look away. +2 Charm");
                 }
@@ -464,11 +467,20 @@ function shellGame(args) {
                 _StdIn.putText("The stick did less damage than the sword. What did you expect?");
                 this.game2 = 0;
                 break;
-            case "super":
-                _StdIn.putText("You swing your now rainbow colored sword at the beast. CONTINUE.");
+            case "special":
+                _StdIn.putText("You dash at the beast with your rainbow colored sword. CONTINUE.");
                 break;
             case "continue":
-                _StdIn.putText("He falls to the ground, defeated. YOU ARE WINNER!");
+                _StdIn.putText("You swing your sword and slice the beast in two. You are WINNER!");
+                break;
+            case "winner":
+                _StdIn.putText("SUPER win! Seriously, it's over. There's nothing left. ");
+                break;
+            case "super":
+                _StdIn.putText("    :| srs");
+                break;
+            default:
+                _StdIn.putText("Don't understand. Start: 'game', Help: 'game help'");
                 break;
         }
     } else {

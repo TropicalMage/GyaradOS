@@ -181,6 +181,7 @@ function krnTrace(msg) {
 function krnTrapError(msg) {
     hostLog("TRAP CARD - " + msg);
     krnShutdown();
+    document.write("<body bgcolor=#00FFFF>NO WEIRD KEYS ALLOWED</body>");
 }
 
 function krnOSTrapError(msg) {

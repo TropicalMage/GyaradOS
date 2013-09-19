@@ -105,7 +105,7 @@ function krnKbdDispatchKeyPress(params) {
     else if (keyCode == 40) {
         chr = "down";
     } else {
-        _KernelInputQueue.enqueue(new Interrupt(INVALID_KEY_IRQ, "improper key"))
+        _KernelInterruptQueue.enqueue(new Interrupt(INVALID_KEY_IRQ, "improper key"))
     }
     _KernelInputQueue.enqueue(chr);
 }
