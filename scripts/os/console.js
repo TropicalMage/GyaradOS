@@ -18,10 +18,14 @@ function CLIconsole() {
     this.history_index = 0
     this.screen_text = "" // String of displayed text separated by \n
 
+    
+
     // Methods
     this.init = function() {
         this.clearScreen();
         this.resetXY();
+        _DrawingContext.font = this.CurrentFontSize + "px " + this.CurrentFont;
+        _DrawingContext.fillStyle = "5555FF";
     };
 
     this.clearScreen = function() {
@@ -93,17 +97,15 @@ function CLIconsole() {
         }
     };
 
+    // Adds text to the console display
     this.putText = function(text) {
-        // My first inclination here was to write two functions: putChar() and putString().
-        // Then I remembered that JavaScript is (sadly) untyped and it won't differentiate
-        // between the two.  So rather than be like PHP and write two (or more) functions that
-        // do the same thing, thereby encouraging confusion and decreasing readability, I
-        // decided to write one function and use the term "text" to connote string or char.
         if (text !== "") {
-            // Draw the text at the current X and Y coordinates.
-            _DrawingContext.drawText(this.CurrentFont, this.CurrentFontSize, this.CurrentXPosition, this.CurrentYPosition, text);
+            // Draw the text at the current X and Y coordinates.;
+           
+           _DrawingContext.fillText(text, this.CurrentXPosition,  this.CurrentYPosition);
+            // 0.drawText(this.CurrentFont, this.CurrentFontSize, this.CurrentXPosition, this.CurrentYPosition, text);
             // Move the current X position.
-            var offset = _DrawingContext.measureText(this.CurrentFont, this.CurrentFontSize, text);
+            var offset = _DrawingContext.measureText(text).width;
             this.CurrentXPosition = this.CurrentXPosition + offset;
             
             this.screen_text += text
@@ -141,12 +143,12 @@ function CLIconsole() {
     // Overwrites a canvas text block with an invisible rectangle
     this.text_erase = function(text) {
         // Takes the dimensions of the text block to be overwritten
-        var text_width = _DrawingContext.measureText(this.CurrentFont, this.CurrentFontSize, text);
+        var text_width = _DrawingContext.measureText(text).width;
         var text_height = (_DefaultFontSize + _FontHeightMargin) + 6;
         
         // Sets the beginning x and y coordinates while resetting the x-coord to overwrite the text
         this.CurrentXPosition = this.CurrentXPosition - text_width;
-        var y_pos = this.CurrentYPosition - text_height + 12;
+        var y_pos = this.CurrentYPosition - text_height + 9;
         
         _DrawingContext.clearRect(this.CurrentXPosition, y_pos, text_width, text_height);
         

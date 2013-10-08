@@ -445,7 +445,7 @@ function shellGame(args) {
                 if(this.game1 && this.game2) {
                     _StdIn.putText("What's this?! Your sword is glowing. You know SPECIAL.");
                 } else {
-                    _StdIn.putText("You dance the night away. The monster can't look away. +2 Charm");
+                    _StdIn.putText("The monster can't look away. +2 Charm");
                 }
                 break;
             case "rock":

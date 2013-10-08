@@ -129,7 +129,7 @@ function krnInterruptHandler(irq, params) // This is the Interrupt Handler Routi
         krnOSTrapError("You done goofed: " + params);
         break;
     case INVALID_KEY_IRQ:
-        krnTrapError("You done goofed: " + params)
+        hostLog("Invalid Key")
         break;
     default:
         krnTrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");

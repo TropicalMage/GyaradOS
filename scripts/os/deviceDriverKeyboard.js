@@ -25,7 +25,7 @@ function krnKbdDriverEntry() {
 }
 
 function krnKbdDispatchKeyPress(params) {
-    // Parse the params.    TODO: Check that they are valid and osTrapError if not.
+    // Parse the params.
     var keyCode = params[0];
     var isShifted = params[1];
     krnTrace("Key code:" + keyCode + " shifted:" + isShifted);
@@ -46,6 +46,7 @@ function krnKbdDispatchKeyPress(params) {
     else if (((keyCode >= 48) && (keyCode <= 57)) || // digits 
     (keyCode == 32)     ||  // space
     (keyCode == 13)     ||  // enter
+    (keyCode == 16)     ||  // shift pls
     (keyCode == 192)    ||  // `
     (keyCode == 189)    ||  // -
     (keyCode == 187)    ||  // =
