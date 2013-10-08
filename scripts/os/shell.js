@@ -10,8 +10,6 @@ function Shell() {
     // Properties
     this.promptStr = ">";
     this.commandList = [];
-    this.curses = "[fuvg],[cvff],[shpx],[phag],[pbpxfhpxre],[zbgureshpxre],[gvgf]";
-    this.apologies = "[sorry]";
     // Methods
     this.init = shellInit;
     this.putPrompt = shellPutPrompt;
@@ -43,7 +41,7 @@ function shellInit() {
     // shutdown
     sc = new ShellCommand();
     sc.command = "shutdown";
-    sc.description = "- Shuts down the virtual OS but leaves the underlying hardware simulation running.";
+    sc.description = "- Shuts down the OS but leaves the hardware simulation running.";
     sc.function = shellShutdown;
     this.commandList[this.commandList.length] = sc;
 
@@ -64,7 +62,7 @@ function shellInit() {
     // trace <on | off>
     sc = new ShellCommand();
     sc.command = "trace";
-    sc.description = "<on | off> - Turns the OS trace on or off.";
+    sc.description = "<on | off> - Turns the OS log on or off.";
     sc.function = shellTrace;
     this.commandList[this.commandList.length] = sc;
 
@@ -78,49 +76,56 @@ function shellInit() {
     // prompt <string>
     sc = new ShellCommand();
     sc.command = "prompt";
-    sc.description = "<string> - Sets the prompt.";
+    sc.description = "<string> - Changes the input icon.";
     sc.function = shellPrompt;
     this.commandList[this.commandList.length] = sc;
 
     // date
     sc = new ShellCommand();
-    sc.command = "date"
-    sc.description = "- Displays the current date."
+    sc.command = "date";
+    sc.description = "- Displays the current date.";
     sc.function = shellDisplayDate;
     this.commandList[this.commandList.length] = sc;
 
     // status <string>
     sc = new ShellCommand();
-    sc.command = "status"
-    sc.description = "<string> - Sets the status of your OS."
+    sc.command = "status";
+    sc.description = "<string> - Sets the status of your OS.";
     sc.function = shellSetStatus;
     this.commandList[this.commandList.length] = sc;
     
     // load
     sc = new ShellCommand();
-    sc.command = "load"
-    sc.description = "- Loads data from the User Program Input."
+    sc.command = "load";
+    sc.description = "- Loads data from the User Program Input.";
     sc.function = shellLoadUPI;
+    this.commandList[this.commandList.length] = sc;
+    
+    // run
+    sc = new ShellCommand();
+    sc.command = "run";
+    sc.description = "<int> - Runs the process of a PID Index";
+    sc.function = shellRun;
     this.commandList[this.commandList.length] = sc;
 
     // whereami
     sc = new ShellCommand();
     sc.command = "whereami";
-    sc.description = "- Displays your current location."
+    sc.description = "- Displays your current location.";
     sc.function = shellShowLocation;
     this.commandList[this.commandList.length] = sc;
     
     // Global Thermonuclear War
     sc = new ShellCommand();
     sc.command = "globalthermonuclearwar";
-    sc.description = "- Do you want to play a game?"
+    sc.description = "- Do you want to play a game?";
     sc.function = shellNuclearWar;
     this.commandList[this.commandList.length] = sc;
     
     // Game
     sc = new ShellCommand();
     sc.command = "game";
-    sc.description = "- Illogical text adventure. Type 'game help' for instructions."
+    sc.description = "- Illogical text adventure. 'game help' for instructions.";
     sc.function = shellGame;
     this.commandList[this.commandList.length] = sc;
 
@@ -139,28 +144,21 @@ function shellPutPrompt() {
 }
 
 function shellHandleInput(buffer) {
-    krnTrace("Shell Command~" + buffer);
-    // 
-    // Parse the input...
-    //
+    krnTrace("Shell>" + buffer);
+    
+    // Parse the input and assign the command and args to local variables
     var userCommand = new UserCommand();
     userCommand = shellParseInput(buffer);
-    // ... and assign the command and args to local variables.
     var cmd = userCommand.command;
     var args = userCommand.args;
-    //
+    
     // Determine the command and execute it.
-    //
-    // JavaScript may not support associative arrays in all browsers so we have to
-    // iterate over the command list in attempt to find a match.  TODO: Is there a better way? Probably.
     var index = 0;
     var found = false;
     while (!found && index < this.commandList.length) {
         if (this.commandList[index].command === cmd) {
             found = true;
-            var fn = this.commandList[index].
-
-                function;
+            var fn = this.commandList[index].function;
         }
         else {
             ++index;
@@ -168,21 +166,8 @@ function shellHandleInput(buffer) {
     }
     if (found) {
         this.execute(fn, args);
-    }
-    else {
-        // It's not found, so check for curses and apologies before declaring the command invalid.
-        if (this.curses.indexOf("[" + rot13(cmd) + "]") >= 0) // Check for curses.
-        {
-            this.execute(shellCurse);
-        }
-        else if (this.apologies.indexOf("[" + cmd + "]") >= 0) // Check for apologies.
-        {
-            this.execute(shellApology);
-        }
-        else // It's just a bad command.
-        {
-            this.execute(shellInvalidCommand);
-        }
+    } else {
+        this.execute(shellInvalidCommand);
     }
 }
 
@@ -236,21 +221,14 @@ function shellExecute(fn, args) {
 // able to make then private.  (Actually, we can. have a look at Crockford's stuff and Resig's JavaScript Ninja cook.)
 //
 
-//
-// An "interior" or "private" class (prototype) used only inside Shell() (we hope).
-//
+// Interior or private classes used only inside Shell()
 function ShellCommand() {
     // Properties
     this.command = "";
     this.description = "";
-    this.
-
-    function = "";
+    this.function = "";
 }
 
-//
-// Another "interior" or "private" class (prototype) used only inside Shell() (we hope).
-//
 function UserCommand() {
     // Properties
     this.command = "";
@@ -258,38 +236,15 @@ function UserCommand() {
 }
 
 
-//
-// Shell Command Functions.  Again, not part of Shell() class per se', just called from there.
-//
+
+/* Shell Command Functions.  Again, not part of Shell() class per se', just called from there. */
+
 function shellInvalidCommand() {
-    _StdIn.putText("Invalid Command. ");
-    if (_SarcasticMode) {
-        _StdIn.putText("Duh. Go back to your Speak & Spell.");
-    }
-    else {
-        _StdIn.putText("Type 'help' for, well... help.");
-    }
-}
-
-function shellCurse() {
-    _StdIn.putText("Oh, so that's how it's going to be, eh? Fine.");
-    _StdIn.advanceLine();
-    _StdIn.putText("Bitch.");
-    _SarcasticMode = true;
-}
-
-function shellApology() {
-    if (_SarcasticMode) {
-        _StdIn.putText("Okay. I forgive you. This time.");
-        _SarcasticMode = false;
-    }
-    else {
-        _StdIn.putText("For what?");
-    }
+    _StdIn.putText("Invalid Command. Use 'help' to guide you.");
 }
 
 function shellVer(args) {
-    _StdIn.putText(APP_NAME + " version " + APP_VERSION);
+    _StdIn.putText(APP_NAME + " v" + APP_VERSION);
 }
 
 function shellHelp(args) {
@@ -302,7 +257,6 @@ function shellHelp(args) {
 
 function shellShutdown(args) {
     _StdIn.putText("Shutting down...");
-    // Call Kernel shutdown routine.
     krnShutdown();
     // TODO: Stop the final prompt from being displayed.  If possible.  Not a high priority.  (Damn OCD!)
 }
@@ -328,19 +282,14 @@ function shellMan(args) {
     }
 }
 
+// Trace Command
 function shellTrace(args) {
     if (args.length > 0) {
         var setting = args[0];
         switch (setting) {
         case "on":
-            if (_Trace && _SarcasticMode) {
-                _StdIn.putText("Trace is already on, dumbass.");
-            }
-            else {
-                _Trace = true;
-                _StdIn.putText("Trace ON");
-            }
-
+            _Trace = true;
+            _StdIn.putText("Trace ON");
             break;
         case "off":
             _Trace = false;
@@ -355,6 +304,7 @@ function shellTrace(args) {
     }
 }
 
+// Rotate Command
 function shellRot13(args) {
     if (args.length > 0) {
         _StdIn.putText(args[0] + " = '" + rot13(args[0]) + "'"); // Requires Utils.js for rot13() function.
@@ -364,6 +314,7 @@ function shellRot13(args) {
     }
 }
 
+// Prompt Command
 function shellPrompt(args) {
     if (args.length > 0) {
         _OsShell.promptStr = args[0];
@@ -373,64 +324,66 @@ function shellPrompt(args) {
     }
 }
 
+
+// Date Command
 function shellDisplayDate(args) {
-    var today = new Date()
-    var day = today.getDate()
-    var month = today.getMonth() + 1
-    var year = today.getFullYear()
-    _StdIn.putText(month + "/" + day + "/" + year)
+    var today = new Date();
+    var day = today.getDate();
+    var month = today.getMonth() + 1;
+    var year = today.getFullYear();
+    _StdIn.putText(month + "/" + day + "/" + year);
 }
 
-// Refreshes the clock in the overview
-function updateClock() {
-    var date = new Date()
-    weekday = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
-    var day = weekday[date.getDay()];
-    var hours = make_it_double(date.getHours())
-    var minutes = make_it_double(date.getMinutes())
-    var seconds = make_it_double(date.getSeconds())
-    function make_it_double(n) {
-        return n < 10 ? '0' + n : n;
-    }
-    document.getElementById("divStatusDate").innerHTML = day + " " + hours + ":" + minutes + ":" + seconds;
-}
-
+// Status Command
 function shellSetStatus(args) {
     document.getElementById("divStatus").innerHTML = "Status: " + args;
 }
 
+// Load Command
 function shellLoadUPI(args) {
     var user_input = document.getElementById("taProgramInput").value;
     var user_sets = user_input.split(" ");
+    
+    var hex_codes = [];
     user_sets.forEach(function(user_set) {
-        if(user_set.length == 2) {
+        if(user_set.length === 2) {
             if(user_set[0].match("[0-9a-fA-F]") && user_set[1].match("[0-9a-zA-Z]")) {
+                hex_codes.push(user_set);
                 return;
             } else {
                 return _StdIn.putText("Invalid: Both characters need to be Hex.");
             }
-        } else if(user_set == "") {
-            return _StdIn.putText("Invalid: Try putting something in the UPI.")
+        } else if(user_set === "") {
+            return _StdIn.putText("Invalid: Try putting something in the UPI.");
         } else {
             return _StdIn.putText("Invalid: Length of a pair is not = 2.");
         }
-    })
+    });
+    krnCreateProcess(hex_codes);
 }
 
+// Run Command
+function shellRun(args) {
+    pid = args[0];//AAAAAAAAAAAAAAAAAAAA
+}
+
+// Where Am I Command
 function shellShowLocation(args) {
     _StdIn.putText("Where aren't you?");
 }
 
+// BSOD Command
 function shellNuclearWar(args) {
     _KernelInterruptQueue.enqueue(new Interrupt(OS_IRQ, "test"));
 }
 
+// Game Command
 function shellGame(args) {
     if (args.length > 0) {
         var action = args[0];
         switch(action) {
             case "help":
-                _StdIn.putText("Use bolded word for a command. 'game ___' to act. Lowercase only");
+                _StdIn.putText("Use bolded word for a command. eg: 'game dance'");
                 break;
             case "look":
                 _StdIn.putText("You see the giant beast, a ROCK, and a STICK.");
@@ -486,4 +439,18 @@ function shellGame(args) {
     } else {
         _StdIn.putText("A beast is before you. Do you LOOK, SWORD, JUMP, or DANCE?");
     }
+}
+
+// Refreshes the Clock in the Corner
+function updateClock() {
+    var date = new Date();
+    var weekday = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    var day = weekday[date.getDay()];
+    var hours = make_it_double(date.getHours());
+    var minutes = make_it_double(date.getMinutes());
+    var seconds = make_it_double(date.getSeconds());
+    function make_it_double(n) {
+        return n < 10 ? '0' + n : n;
+    }
+    document.getElementById("divStatusDate").innerHTML = day + " " + hours + ":" + minutes + ":" + seconds;
 }

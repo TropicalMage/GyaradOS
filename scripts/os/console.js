@@ -14,9 +14,9 @@ function CLIconsole() {
     this.CurrentXPosition = 0;
     this.CurrentYPosition = _DefaultFontSize;
     this.buffer = ""; // Currently displayed string in the line
-    this.history = [] // History of all the commands
-    this.history_index = 0
-    this.screen_text = "" // String of displayed text separated by \n
+    this.history = []; // History of all the commands
+    this.history_index = 0;
+    this.screen_text = ""; // String of displayed text separated by \n
 
     
 
@@ -56,10 +56,10 @@ function CLIconsole() {
             else if(chr == "backspace") {
                 if(this.buffer.length > 0) {
                     // Overwrite the last character in the canvas
-                    this.text_erase(this.buffer.slice(-1))
+                    this.text_erase(this.buffer.slice(-1));
                 }
                 // Set the actual buffer variable
-                this.buffer = this.buffer.slice(0, this.buffer.length - 1)
+                this.buffer = this.buffer.slice(0, this.buffer.length - 1);
             }
             
             // Up: Cycles through your history of commands in reverse
@@ -71,7 +71,7 @@ function CLIconsole() {
                     this.history_index = this.history.length - 1;
                 }
                 
-                this.buffer = this.history[this.history_index]
+                this.buffer = this.history[this.history_index];
                 this.putText(this.buffer);
             }
             
@@ -79,12 +79,12 @@ function CLIconsole() {
             else if(chr == "down") {
                 this.text_erase(this.buffer);
                 
-                this.history_index +=1
+                this.history_index +=1;
                 if(this.history_index > this.history.length - 1) {
                     this.history_index = 0;
                 }
                 
-                this.buffer = this.history[this.history_index]
+                this.buffer = this.history[this.history_index];
                 this.putText(this.buffer);
             }
             
@@ -100,15 +100,14 @@ function CLIconsole() {
     // Adds text to the console display
     this.putText = function(text) {
         if (text !== "") {
-            // Draw the text at the current X and Y coordinates.;
-           
+            // Draw the text at the current X and Y coordinates.
            _DrawingContext.fillText(text, this.CurrentXPosition,  this.CurrentYPosition);
-            // 0.drawText(this.CurrentFont, this.CurrentFontSize, this.CurrentXPosition, this.CurrentYPosition, text);
+           
             // Move the current X position.
             var offset = _DrawingContext.measureText(text).width;
             this.CurrentXPosition = this.CurrentXPosition + offset;
             
-            this.screen_text += text
+            this.screen_text += text;
         }
     };
 
@@ -116,7 +115,7 @@ function CLIconsole() {
     this.advanceLine = function() {
         this.CurrentXPosition = 0;
         this.CurrentYPosition += _DefaultFontSize + _FontHeightMargin;
-        this.screen_text += "\n"
+        this.screen_text += "\n";
         
         // Scroll if its at the end of the console box
         var screen_lines = this.screen_text.match(/[^\r\n]+/g); // Array of all of the placed text
@@ -128,12 +127,12 @@ function CLIconsole() {
             this.screen_text = "";
             
             // Remove the lines depending on how much is inserted
-            screen_lines.splice(0, screen_lines.length - max_lines + 1)
+            screen_lines.splice(0, screen_lines.length - max_lines + 1);
             var dat = this;
             // For each line from the top, redraw the text gotten from screen_text
             screen_lines.forEach(function(line) {
-                dat.putText(line)
-                dat.screen_text += "\n"
+                dat.putText(line);
+                dat.screen_text += "\n";
                 dat.CurrentXPosition = 0;
                 dat.CurrentYPosition += _DefaultFontSize + _FontHeightMargin;
             });
@@ -153,5 +152,5 @@ function CLIconsole() {
         _DrawingContext.clearRect(this.CurrentXPosition, y_pos, text_width, text_height);
         
         this.screen_text = this.screen_text.slice(0, this.screen_text.length - text.length);
-    }
+    };
 }

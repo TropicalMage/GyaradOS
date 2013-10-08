@@ -9,10 +9,7 @@
    Operating System Concepts 8th edition by Silberschatz, Galvin, and Gagne.  ISBN 978-0-470-12872-5
    ------------ */
 
-
-//
-// OS Startup and Shutdown Routines   
-//
+// OS Startup and Shutdown Routines
 function krnBootstrap() // Page 8.
 {
     hostLog("bootstrap", "host"); // Use hostLog because we ALWAYS want this, even if _Trace is off.
@@ -35,10 +32,6 @@ function krnBootstrap() // Page 8.
     krnKeyboardDriver = new DeviceDriverKeyboard(); // Construct it.  TODO: Should that have a _global-style name?
     krnKeyboardDriver.driverEntry(); // Call the driverEntry() initialization routine.
     krnTrace(krnKeyboardDriver.status);
-
-    //
-    // ... more?
-    //
 
     // Enable the OS Interrupts.  (Not the CPU clock interrupt, as that is done in the hardware sim.)
     krnTrace("Enabling the interrupts.");
@@ -158,6 +151,18 @@ function krnTimerISR() // The built-in TIMER (not clock) Interrupt Service Routi
 // - WriteFile
 // - CloseFile
 
+function krnCreateProcess(hex_codes) {
+    pcb = new PCB(getNewPID(), 0, hex_codes.length);
+    console.log(pcb.pid, pcb.begin, pcb.end);
+    start_address = 0;
+    curr_address = 0;
+    hex_codes.forEach(function(hex_pair) {
+        _MemoryManager.save_hex_pair(curr_address, hex_pair);
+        curr_address++;
+    });
+    console.log(_memory);
+}
+
 
 //
 // OS Utility Routines
@@ -188,4 +193,10 @@ function krnOSTrapError(msg) {
     hostLog("OS TRAP - " + msg);
     krnShutdown();
     document.write("<body bgcolor=#FF0000>Boom</body>");
+}
+
+// Return current PID then increment it for the next process
+function getNewPID()
+{
+	return ++_PID;
 }

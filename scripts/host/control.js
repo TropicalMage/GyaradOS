@@ -26,6 +26,9 @@ function hostInit()
 
 	// Get a global reference to the drawing context.
 	_DrawingContext = _Canvas.getContext('2d');
+	
+	_memory = new Memory();
+	_MemoryManager = new MemoryManager();
 
 	// Enable the added-in canvas text functions (see canvastext.js for provenance and details).
 // 	CanvasTextFunctions.enable(_DrawingContext);   // TODO: Text functionality is now built in to the HTML5 canvas. Consider using that instead.
@@ -58,7 +61,7 @@ function hostLog(msg, source)
     var now = new Date().getTime();
 
     // Build the log string.   
-    var str = "({ clock:" + clock + ", source:" + source + ", msg:" + msg + ", now:" + now  + " })"  + "\n";    
+    var str = "<t:" + clock + ", Src:" + source + ", Msg:" + msg + ", Now: " + now  + ">"  + "\n";    
 
     // Update the log console.
     var taLog = document.getElementById("taLog");
