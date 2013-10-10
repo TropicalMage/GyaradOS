@@ -39,30 +39,32 @@ function Cpu() {
     };
 
     this.execute = function() {
-        var start_index = _curr_pcb.begin;
-        var end_index = _curr_pcb.end;
-        this.PC = start_index;
+        this.PC = _curr_pcb.begin;
         while (_MemoryManager.load_hex_pair(this.PC) != "00" && this.invalid === "") {
             var hex_pair = _MemoryManager.load_hex_pair(this.PC)
             this.PC++;
             this.do_op_code(hex_pair);
         }
+        // The program properly finished, so set the final CPU state to the pcb's state
         if (this.invalid === "") {
             _curr_pcb.PC = this.PC;
             _curr_pcb.Acc = this.Acc;
             _curr_pcb.Xreg = this.Xreg;
             _curr_pcb.Yreg = this.Yreg;
             _curr_pcb.Zflag = this.Zflag;
-            _StdIn.putText("Process Complete- " + _curr_pcb.to_string());
-        } else {
+            _StdIn.putText("  {Process Complete} (" + _curr_pcb.to_string() + ")");
+        } 
+        // Else print the invalid statement from any of the do-op methods
+        else {
             _StdIn.putText("Invalid: " + this.invalid);
             this.invalid = "";
         }
         
-        this.isExecuting = false;
+        this.isExecuting = false; // Re-enable input
         _Console.advanceLine();
     };
     
+    // Changes the CPU to match the state
     this.switch_context = function(a_pcb) {
         this.PC    = a_pcb.PC;
         this.Acc   = a_pcb.Acc;
@@ -71,6 +73,7 @@ function Cpu() {
         this.Zflag = a_pcb.Zflag;   
     };
     
+    // Filters a hex code combination into an op-code
     this.do_op_code = function(hex_pair) {
         var num_params = 0;
         switch(hex_pair) {
@@ -118,26 +121,32 @@ function Cpu() {
             default: 
                 this.invalid = "Unreadable hex op-code: (PC: " + this.PC + ", Hex_Pair: " + hex_pair + ")";
                 break;
-        }
+        } 
+        // When done with the specific operation, increment PC by the number of parameters used for said operation. 
         this.PC += num_params;
     };
 }
-    
+
+
+// Most op-codes creates a hex_params array containing the sets of hexes used for the operation 
+
 load_accum_with_const = function() {
     var hex_params = [];
     hex_params[0] = _MemoryManager.load_hex_pair(_CPU.PC);
+    // If you reach the end of your boundary for your process
     if (_CPU.PC + hex_params.length >= _curr_pcb.end) {
         _CPU.invalid = "Trying to reach out of bounds.";
         return -1;
     }
-    _CPU.Acc = parseInt(hex_params, 16);
+    _CPU.Acc = parseInt(hex_params[0], 16);
     
+    // Getting the length of it helps properly increment _CPU.PC
     return hex_params.length;
 };
 
-
 load_accum_from_memory = function() {
     var hex_params = [];
+    // The hex params are out of order, so swap them
     hex_params[0] = _MemoryManager.load_hex_pair(_CPU.PC + 1);
     hex_params[1] = _MemoryManager.load_hex_pair(_CPU.PC);
     if (_CPU.PC + hex_params.length >= _curr_pcb.end) {
@@ -182,6 +191,7 @@ add_with_carry = function() {
     }
     var index = hex_params[0] + hex_params[1];
     var index = parseInt(index, 16);
+    // Similar to load_accum_from_memory, but +=
     _CPU.Acc += parseInt(_MemoryManager.load_hex_pair(index), 16);
     return hex_params.length;
 };
@@ -193,7 +203,8 @@ load_x_reg_with_const = function() {
         _CPU.invalid = "Trying to reach out of bounds.";
         return -1;
     }
-    _CPU.Xreg = parseInt(hex_params, 16);
+    _CPU.Xreg = parseInt(hex_params[0], 16);
+    
     return hex_params.length;
 };
 
@@ -219,7 +230,7 @@ load_y_reg_with_const = function() {
         _CPU.invalid = "Trying to reach out of bounds.";
         return -1;
     }
-    _CPU.Yreg = parseInt(hex_params, 16);
+    _CPU.Yreg = parseInt(hex_params[0], 16);
     
     return hex_params.length;
 };
@@ -251,11 +262,15 @@ compare_to_x_reg = function() {
         _CPU.invalid = "Trying to reach out of bounds.";
         return -1;
     }
+    
     var index = hex_params[0] + hex_params[1];
     var index = parseInt(index, 16);
     var memory_value = parseInt(_MemoryManager.load_hex_pair(index), 16)
+    
     if(_CPU.Xreg === memory_value) {
         _CPU.Zflag = 1;
+    } else {
+        _CPU.Zflag = 0;
     }
     
     return hex_params.length;
@@ -269,7 +284,9 @@ branch_not_equal = function() {
         return -1;
     }
     if (_CPU.Zflag === 0) {
-        this.PC += parseInt(hex_params[0], 16);
+        _CPU.PC += parseInt(hex_params[0], 16);
+        _CPU.PC %= 256; // For wrapping around
+        
     }
     
     return hex_params.length;
@@ -283,12 +300,15 @@ increment_value_at_byte = function() {
         _CPU.invalid = "Trying to reach out of bounds.";
         return -1;
     }
+    
     var mem_index = hex_params[0] + hex_params[1];
     var mem_index = parseInt(mem_index, 16);
     var memory_value = parseInt(_MemoryManager.load_hex_pair(mem_index), 16)
+    
     memory_value++;
+    // Move the decimal back into hex form and in the memory address
     var mem_string = memory_value.toString(16).toUpperCase();
-    if (mem_string.length === 1) {
+    if (mem_string.length === 1) { // Make certain it's a hex pair
         mem_string = "0" + mem_string;
     }
     
@@ -300,13 +320,17 @@ increment_value_at_byte = function() {
 system_call = function() {
     if (_CPU.Xreg === 1) {
         _StdIn.putText(_CPU.Yreg);
-    } else if (_CPU.Xreg === 2) {
+        _StdIn.advanceLine();
+    } 
+    else if (_CPU.Xreg === 2) {
         var hex_string = "";
         var counter = _CPU.Yreg;
+        // Keep adding to the string until you see a 00, then putText
         while (_MemoryManager.load_hex_pair(counter) !== "00") {
             hex_string += String.fromCharCode(parseInt(_MemoryManager.load_hex_pair(counter), 16));
             counter++;
         }
         _StdIn.putText(hex_string);
+        _StdIn.advanceLine();
     }
 }; 

@@ -13,6 +13,6 @@ function PCB (pid, begin, end)  {
     this.Zflag = 0; 
     
     this.to_string = function() {
-        return "PID:" + this.pid + "|PC:" + this.PC + "|Acc:" + this.Acc + "|Reg:" + this.Xreg + "," + this.Yreg + "|ZFlag:" + this.Zflag;
+        return "PID:" + this.pid + "|PC:" + this.PC + "|Acc:" + this.Acc + "|X:" + this.Xreg + "|Y:" + this.Yreg + "|Z:" + this.Zflag;
     };
 }
