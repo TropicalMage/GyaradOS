@@ -6,8 +6,13 @@ function PCB (pid, begin, end)  {
 	
 	// Future things to save the state of the Process Control Block
 	this.state =    0;
-	this.acc =      0;
-	this.x 	 =      0;
-	this.y 	 =      0;
-	this.z 	 =      0;
+    this.PC    = 0;
+    this.Acc   = 0;
+    this.Xreg  = 0;
+    this.Yreg  = 0;
+    this.Zflag = 0; 
+    
+    this.to_string = function() {
+        return "PID:" + this.pid + "|PC:" + this.PC + "|Acc:" + this.Acc + "|Reg:" + this.Xreg + "," + this.Yreg + "|ZFlag:" + this.Zflag;
+    };
 }

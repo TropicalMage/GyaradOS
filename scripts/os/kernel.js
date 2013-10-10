@@ -119,7 +119,6 @@ function krnInterruptHandler(irq, params) // This is the Interrupt Handler Routi
             krnKeyboardDriver.isr(params); // Kernel mode device driver
             _StdIn.handleInput();
         }
-        
         break;
     case OS_IRQ:
         krnOSTrapError("You done goofed: " + params);
@@ -158,6 +157,7 @@ function krnTimerISR() // The built-in TIMER (not clock) Interrupt Service Routi
 // - CloseFile
 
 function krnCreateProcess(hex_codes) {
+    _MemoryManager.clear();
     var pcb = new PCB(getNewPID(), 0, 256);
     start_address = 0;
     curr_address = 0;
