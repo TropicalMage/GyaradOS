@@ -9,10 +9,10 @@
    ------------ */
 
 // Global CONSTANTS
-var APP_NAME = "GyaradOS"; // 'cause I was at a loss for a better name.
-var APP_VERSION = "0.20"; // What did you expect?
+var APP_NAME = "GyaradOS";
+var APP_VERSION = "0.21";
 
-var CPU_CLOCK_INTERVAL = 100; // This is in ms, or milliseconds, so 1000 = 1 second.
+var CPU_CLOCK_INTERVAL = 100; // ms
 
 var TIMER_IRQ = 0; // Pages 23 (timer), 9 (interrupts), and 561 (interrupt priority).
 // NOTE: The timer is different from hardware/host clock pulses. Don't confuse these.

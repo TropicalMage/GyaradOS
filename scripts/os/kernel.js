@@ -115,8 +115,8 @@ function krnInterruptHandler(irq, params) // This is the Interrupt Handler Routi
         krnTimerISR(); // Kernel built-in routine for timers (not the clock).
         break;
     case KEYBOARD_IRQ:
+        krnKeyboardDriver.isr(params); // Kernel mode device driver
         if (_Console.active) {
-            krnKeyboardDriver.isr(params); // Kernel mode device driver
             _StdIn.handleInput();
         }
         break;
