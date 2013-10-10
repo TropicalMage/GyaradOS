@@ -17,6 +17,7 @@ function CLIconsole() {
     this.history = []; // History of all the commands
     this.history_index = 0;
     this.screen_text = ""; // String of displayed text separated by \n
+    this.active = true; // Allows us to know when we can type
 
     
 

@@ -46,7 +46,7 @@ function krnKbdDispatchKeyPress(params) {
     else if (((keyCode >= 48) && (keyCode <= 57)) || // digits 
     (keyCode == 32)     ||  // space
     (keyCode == 13)     ||  // enter
-    (keyCode == 16)     ||  // shift pls
+    (keyCode == 16)     ||  // shift
     (keyCode == 192)    ||  // `
     (keyCode == 189)    ||  // -
     (keyCode == 187)    ||  // =

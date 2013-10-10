@@ -8,11 +8,9 @@
    Operating System Concepts 8th edition by Silberschatz, Galvin, and Gagne.  ISBN 978-0-470-12872-5
    ------------ */
 
-//
 // Global CONSTANTS
-//
 var APP_NAME = "GyaradOS"; // 'cause I was at a loss for a better name.
-var APP_VERSION = "0.12"; // What did you expect?
+var APP_VERSION = "0.13"; // What did you expect?
 
 var CPU_CLOCK_INTERVAL = 100; // This is in ms, or milliseconds, so 1000 = 1 second.
 
@@ -25,17 +23,23 @@ var TOTAL_MEMORY = 256;
 
 
 
-// Global Variables
+// Global Components
 var _CPU = null;
 var _memory = [];
 var _MemoryManager;
+var _Console = null;
+var _OsShell = null;
 
-var _PID = 0;
+// Memory Globals
+var _curr_pcb; // pointer to the current PCB
+var _PID = 0;           // The incrementor for making unique process ids
+var _PID_to_PCB = [];   // A mapping of a process id to its control block
 
 var _OSclock = 0; // Page 23.
 
 var _Mode = 0; // 0 = Kernel Mode, 1 = User Mode.  See page 21.
 
+// Canvas Globals
 var _Canvas = null; // Initialized in hostInit().
 var _DrawingContext = null; // Initialized in hostInit().
 var _DefaultFontFamily = "Lucida Console"; 
@@ -53,10 +57,6 @@ var _KernelInputQueue = null;
 // Standard input and output
 var _StdIn = null;
 var _StdOut = null;
-
-// UI
-var _Console = null;
-var _OsShell = null;
 
 // Global Device Driver Objects - page 12
 var krnKeyboardDriver = null;

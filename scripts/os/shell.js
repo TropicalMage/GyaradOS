@@ -26,8 +26,7 @@ function shellInit() {
     sc = new ShellCommand();
     sc.command = "ver";
     sc.description = "- Displays the current version data.";
-    sc.
-    function = shellVer;
+    sc.function = shellVer;
     this.commandList[this.commandList.length] = sc;
 
     // help
@@ -210,7 +209,17 @@ function shellExecute(fn, args) {
         _StdIn.advanceLine();
     }
     // ... and finally write the prompt again.
-    this.putPrompt();
+    
+    _Console.active = false;
+    
+    var timerId = null;
+    timerId = setInterval(function() {
+        if(!_CPU.isExecuting) { 
+            _OsShell.putPrompt();
+            _Console.active = true;
+            clearTimeout(timerId);
+        }
+    }, 100);
 }
 
 
@@ -341,30 +350,63 @@ function shellSetStatus(args) {
 
 // Load Command
 function shellLoadUPI(args) {
-    var user_input = document.getElementById("taProgramInput").value;
-    var user_sets = user_input.split(" ");
-    
-    var hex_codes = [];
-    user_sets.forEach(function(user_set) {
-        if(user_set.length === 2) {
-            if(user_set[0].match("[0-9a-fA-F]") && user_set[1].match("[0-9a-zA-Z]")) {
-                hex_codes.push(user_set);
-                return;
+    if (args.length === 0) { // No args
+        var user_input = document.getElementById("taProgramInput").value;
+        
+        if (user_input !== "") { // There is something in the UPI
+            var hex_pairs = user_input.split(" ");
+            
+            if (hex_pairs.length < TOTAL_MEMORY) {
+                // Check each set to see if its only a pair of hexidecimals
+                var invalid = false;
+                hex_pairs.forEach(function(hex_set) {
+                    if(hex_set.length !== 2) {
+                        invalid = true;
+                        return _StdIn.putText("Invalid: Two hex chars only.");
+                    }
+                    if (!hex_set[0].match("[0-9a-fA-F]")) {
+                        invalid = true;
+                        return _StdIn.putText("Invalid: " + hex_set[0] + " needs to be in hex. ");
+                    }
+                    if (!hex_set[1].match("[0-9a-fA-F]")) {
+                        invalid = true;
+                        return _StdIn.putText("Invalid: " + hex_set[1] + " needs to be in hex. ");
+                    }
+                });
+                
+                if (invalid) {return;}
+                
+                var hex_codes = [];
+                hex_pairs.forEach(function(hex_pair) {
+                    hex_codes.push(hex_pair);
+                    return;
+                });
+            
+                krnCreateProcess(hex_codes);
             } else {
-                return _StdIn.putText("Invalid: Both characters need to be Hex.");
+                return _StdIn.putText("Invalid: Insufficient memory space.");
             }
-        } else if(user_set === "") {
-            return _StdIn.putText("Invalid: Try putting something in the UPI.");
         } else {
-            return _StdIn.putText("Invalid: Length of a pair is not = 2.");
+            return _StdIn.putText("Invalid: Try putting something in the UPI.");
         }
-    });
-    krnCreateProcess(hex_codes);
+    } else {
+        return _StdIn.putText("Invalid: Requires no arguments.");
+    }
 }
 
 // Run Command
 function shellRun(args) {
-    pid = args[0];//AAAAAAAAAAAAAAAAAAAA
+    if (args.length == 1) { // Need only an int
+        if (_PID_to_PCB.length > args[0]) {
+            var pcb = _PID_to_PCB[args[0]];
+            _curr_pcb = pcb;
+            _CPU.isExecuting = true;
+        } else {
+            return _StdIn.putText("Invalid: Unable to locate the pcb. Avaliable processes: " + _PID_to_PCB.length);
+        }
+    } else {
+        return _StdIn.putText("Invalid: Use a single pid to run a specific process.");
+    }
 }
 
 // Where Am I Command

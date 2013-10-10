@@ -9,16 +9,16 @@
    Operating System Concepts 8th edition by Silberschatz, Galvin, and Gagne.  ISBN 978-0-470-12872-5
    ------------ */
 
+
 // OS Startup and Shutdown Routines
-function krnBootstrap() // Page 8.
-{
-    hostLog("bootstrap", "host"); // Use hostLog because we ALWAYS want this, even if _Trace is off.
+function krnBootstrap() {
+    hostLog("bootstrap", "host");           // Use hostLog because we ALWAYS want this, even if _Trace is off.
 
     // Initialize our global queues.
-    _KernelInterruptQueue = new Queue(); // A (currently) non-priority queue for interrupt requests (IRQs).
-    _KernelBuffers = new Array(); // Buffers... for the kernel.
-    _KernelInputQueue = new Queue(); // Where device input lands before being processed out somewhere.
-    _Console = new CLIconsole(); // The command line interface / console I/O device.
+    _KernelInterruptQueue = new Queue();    // A (currently) non-priority queue for interrupt requests (IRQs).
+    _KernelBuffers = new Array();           // Buffers... for the kernel.
+    _KernelInputQueue = new Queue();        // Where device input lands before being processed out somewhere.
+    _Console = new CLIconsole();            // The command line interface / console I/O device.
 
     // Initialize the CLIconsole.
     _Console.init();
@@ -115,14 +115,20 @@ function krnInterruptHandler(irq, params) // This is the Interrupt Handler Routi
         krnTimerISR(); // Kernel built-in routine for timers (not the clock).
         break;
     case KEYBOARD_IRQ:
-        krnKeyboardDriver.isr(params); // Kernel mode device driver
-        _StdIn.handleInput();
+        if (_Console.active) {
+            krnKeyboardDriver.isr(params); // Kernel mode device driver
+            _StdIn.handleInput();
+        }
+        
         break;
     case OS_IRQ:
         krnOSTrapError("You done goofed: " + params);
         break;
     case INVALID_KEY_IRQ:
         hostLog("Invalid Key")
+        break;
+    case INVALID_BOUNDARY_IRQ:
+        hostLog("Process is trying to reach out of bounds. ")
         break;
     default:
         krnTrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");
@@ -152,15 +158,17 @@ function krnTimerISR() // The built-in TIMER (not clock) Interrupt Service Routi
 // - CloseFile
 
 function krnCreateProcess(hex_codes) {
-    pcb = new PCB(getNewPID(), 0, hex_codes.length);
-    console.log(pcb.pid, pcb.begin, pcb.end);
+    var pcb = new PCB(getNewPID(), 0, 256);
     start_address = 0;
     curr_address = 0;
+    _CPU.PC = start_address;
     hex_codes.forEach(function(hex_pair) {
         _MemoryManager.save_hex_pair(curr_address, hex_pair);
         curr_address++;
     });
-    console.log(_memory);
+    
+    _PID_to_PCB[pcb.pid] = pcb;
+    return _StdIn.putText("Success. Unique PID: " + pcb.pid);
 }
 
 
@@ -184,7 +192,7 @@ function krnTrace(msg) {
 }
 
 function krnTrapError(msg) {
-    hostLog("TRAP CARD - " + msg);
+    hostLog("TRAP - " + msg);
     krnShutdown();
     document.write("<body bgcolor=#00FFFF>NO WEIRD KEYS ALLOWED</body>");
 }
@@ -196,7 +204,6 @@ function krnOSTrapError(msg) {
 }
 
 // Return current PID then increment it for the next process
-function getNewPID()
-{
-	return ++_PID;
+function getNewPID() {
+	return _PID++;
 }
