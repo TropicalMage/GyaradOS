@@ -217,6 +217,7 @@ function shellExecute(fn, args) {
         if(!_CPU.isExecuting) { 
             _OsShell.putPrompt();
             _Console.active = true;
+            _Console.handleInput();
             clearTimeout(timerId);
         }
     }, 100);
