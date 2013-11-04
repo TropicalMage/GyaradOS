@@ -34,17 +34,14 @@ function Cpu() {
     this.cycle = function() {
         krnTrace("CPU cycle");
         this.execute();
-        // TODO: Accumulate CPU usage and profiling statistics here.
-        // Do the real work here. Be sure to set this.isExecuting appropriately.
     };
 
     this.execute = function() {
-        this.PC = _curr_pcb.begin;
-        while (_MemoryManager.load_hex_pair(this.PC) != "00" && this.invalid === "") {
-            var hex_pair = _MemoryManager.load_hex_pair(this.PC)
-            this.PC++;
-            this.do_op_code(hex_pair);
-        }
+        console.log("C: ", this.PC);
+//        this.PC = _curr_pcb.begin; for this project
+        var hex_pair = _MemoryManager.load_hex_pair(this.PC);
+        this.PC++;
+        this.do_op_code(hex_pair);
         // The program properly finished, so set the final CPU state to the pcb's state
         if (this.invalid === "") {
             _curr_pcb.PC = this.PC;
@@ -52,16 +49,12 @@ function Cpu() {
             _curr_pcb.Xreg = this.Xreg;
             _curr_pcb.Yreg = this.Yreg;
             _curr_pcb.Zflag = this.Zflag;
-            _StdIn.putText("  {Process Complete} (" + _curr_pcb.to_string() + ")");
         } 
         // Else print the invalid statement from any of the do-op methods
         else {
-            _StdIn.putText("Invalid: " + this.invalid);
+            _KernelInterruptQueue.enqueue(new Interrupt(PROCESS_FAILURE_IRQ, this.invalid));
             this.invalid = "";
         }
-        
-        this.isExecuting = false; // Re-enable input
-        _Console.advanceLine();
     };
     
     // Changes the CPU to match the state
@@ -123,7 +116,9 @@ function Cpu() {
                 break;
         } 
         // When done with the specific operation, increment PC by the number of parameters used for said operation. 
+        console.log("A: ", this.PC, num_params);
         this.PC += num_params;
+        console.log("B: ", this.PC, num_params);
     };
 }
 
@@ -251,7 +246,7 @@ load_y_reg_from_memory = function() {
 };
 
 system_break = function() {
-    krnShutdown();
+    _KernelInterruptQueue.enqueue(new Interrupt(PROCESS_SUCCESS_IRQ, "(" + _curr_pcb.to_string() + ")"));
 }; 
 
 compare_to_x_reg = function() {

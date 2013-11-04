@@ -1,0 +1,54 @@
+/* css */
+
+body {
+    background: #909193 url(images/backdrop.png) repeat;
+    font-family: Helvetica, Verdana, Arial, sans-serif;
+    font-size: 12pt;
+    font-weight: normal;
+    font-style: normal;
+    color:#FFFFFF;
+}
+
+#display {
+    background-color:#000000;
+    border: 2px solid blue;
+    cursor: default;
+}
+
+.normal_button {
+    width: 100px;
+}
+
+#memory {
+    float:left;
+    height: 400px;
+    width: 200px;
+    overflow: auto;
+    background-color: #000000;
+    padding: 0 5px;
+    margin: 5px 10px;
+}
+
+#input {
+    float: left;
+}
+
+#taLog {
+    width: 360px;
+    height: 450px;
+}
+
+td {
+    text-align: center;
+    width: 38px;
+}
+table {
+    border-collapse:collapse;
+}
+table, th, td {
+    border: 1px solid white;
+}
+
+#log {
+    float: left;
+}

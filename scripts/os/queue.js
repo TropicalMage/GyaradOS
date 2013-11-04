@@ -18,7 +18,7 @@ function Queue()
     };
 
     this.isEmpty = function(){
-        return (this.q.length == 0);    
+        return (this.q.length === 0);    
     };
 
     this.enqueue = function(element) {

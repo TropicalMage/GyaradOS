@@ -397,7 +397,7 @@ function shellLoadUPI(args) {
 
 // Run Command
 function shellRun(args) {
-    if (args.length == 1) { // Need only an int
+    if (args.length === 1) { // Need only an int
         if (_PID_to_PCB.length > args[0]) {
             var pcb = _PID_to_PCB[args[0]];
             _curr_pcb = pcb;

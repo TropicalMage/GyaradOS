@@ -4,7 +4,7 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
         <meta name="author" content="Alan G. Labouseur" />
-        <link rel="stylesheet" href="alanbbos.css" type="text/css" media="screen"
+        <link rel="stylesheet" href="format.css" type="text/css" media="screen"
         />
         <title>GyaradOS</title>
         <!-- Globals CONSTANTS and _Variables. Must included be
@@ -32,8 +32,16 @@
     </head>
     
     <body onload="hostInit();">
-        <div id="divStatus">Status: Boot-up</div>
-        <div id="divStatusDate" style="text-align:center;"></div>
+    
+    
+        <table></table>
+            <tr>
+                <th><div id="divStatus">Status: Boot-up</div></th>
+                <th><div id="divStatusDate"></div></th>
+            </tr>
+        </table>
+    
+    
         <div id="divMain" style="width:100%;">
             <div id="divButtonBar" style="margin:4px;">
                 <input type="button" id="btnStartOS" name="brnStartOS" class="normal_button"
@@ -59,11 +67,24 @@
                 </label>
             </div>
             <div id ="memory" style="margin-left:950px; margin-top:-600px;"></div>
-            <div id ="programCounter" style="margin-top: -240px;">PC: 0</div>
-            <div id ="accumulator">Acc: 0</div>
-            <div id ="Xreg">Xreg: 0</div>
-            <div id ="Yreg">Yreg: 0</div>
-            <div id ="ZFlag">ZFlag: 0</div>
+            
+            <table border="1">
+                <tr>
+                    <th>PC</th>
+                    <th>Acc</th>
+                    <th>X-Reg</th>
+                    <th>Y-Reg</th>
+                    <th>Z-Flag</th>
+                </tr>
+                <tr>
+                    <td id="programCounter">0</td>
+                    <td id ="accumulator">0</td>
+                    <td id ="Xreg">0</td>
+                    <td id ="Yreg">0</td>
+                    <td id ="ZFlag">0</td>
+                </tr>
+            </table>
+            
         </div>
         <!--<p class="footerText" style="clear:both;">-->
         <!--    <br>Copyright &copy; 2008 - 2013 No Rights Reserved.-->

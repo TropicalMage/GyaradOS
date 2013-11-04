@@ -26,7 +26,7 @@ function CLIconsole() {
         this.clearScreen();
         this.resetXY();
         _DrawingContext.font = this.CurrentFontSize + "px " + this.CurrentFont;
-        _DrawingContext.fillStyle = "5555FF";
+        _DrawingContext.fillStyle = "#6666FF";
     };
 
     this.clearScreen = function() {
@@ -45,7 +45,7 @@ function CLIconsole() {
             var chr = _KernelInputQueue.dequeue();
             
             //Enter: End of a console command
-            if (chr == String.fromCharCode(13)) {
+            if (chr === String.fromCharCode(13)) {
                 this.history.push(this.buffer);
                 this.history_index = this.history.length;
                 _OsShell.handleInput(this.buffer);
@@ -54,7 +54,7 @@ function CLIconsole() {
             }
             
             // Backspace: removes last buffer char
-            else if(chr == "backspace") {
+            else if(chr === "backspace") {
                 if(this.buffer.length > 0) {
                     // Overwrite the last character in the canvas
                     this.text_erase(this.buffer.slice(-1));
@@ -64,7 +64,7 @@ function CLIconsole() {
             }
             
             // Up: Cycles through your history of commands in reverse
-            else if(chr == "up") {
+            else if(chr === "up") {
                 this.text_erase(this.buffer);
                 
                 this.history_index -=1;
@@ -77,7 +77,7 @@ function CLIconsole() {
             }
             
             // Down: Cycles through your history of commands in forwards
-            else if(chr == "down") {
+            else if(chr === "down") {
                 this.text_erase(this.buffer);
                 
                 this.history_index +=1;

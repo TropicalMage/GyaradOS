@@ -34,11 +34,11 @@ function hostClockPulse() {
     }
     html += "</tr></table>";
     document.getElementById("memory").innerHTML = html;
-    document.getElementById("programCounter").innerHTML = "PC: " + _CPU.PC;
-    document.getElementById("accumulator").innerHTML = "Acc: " + _CPU.Acc;
-    document.getElementById("Xreg").innerHTML = "Xreg: " + _CPU.Xreg;
-    document.getElementById("Yreg").innerHTML = "Yreg: " + _CPU.Yreg;
-    document.getElementById("ZFlag").innerHTML = "ZFlag: " + _CPU.Zflag;
+    document.getElementById("programCounter").innerHTML = _CPU.PC;
+    document.getElementById("accumulator").innerHTML = _CPU.Acc;
+    document.getElementById("Xreg").innerHTML = _CPU.Xreg;
+    document.getElementById("Yreg").innerHTML = _CPU.Yreg;
+    document.getElementById("ZFlag").innerHTML = _CPU.Zflag;
 }
 
 
@@ -59,7 +59,7 @@ function hostDisableKeyboardInterrupt() {
 function hostOnKeypress(event) {
     // The canvas element CAN receive focus if you give it a tab index, which we have.
     // Check that we are processing keystrokes only from the canvas's id (as set in index.html).
-    if (event.target.id == "display") {
+    if (event.target.id === "display") {
         event.preventDefault();
         // Note the pressed key code in the params (Mozilla-specific).
         var params = new Array(event.which, event.shiftKey);

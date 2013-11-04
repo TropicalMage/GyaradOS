@@ -74,13 +74,11 @@ function krnOnCPUClockPulse() {
         // TODO: Implement a priority queue based on the IRQ number/id to enforce interrupt priority.
         var interrupt = _KernelInterruptQueue.dequeue();
         krnInterruptHandler(interrupt.irq, interrupt.params);
-    }
-    else if (_CPU.isExecuting) // If there are no interrupts then run one CPU cycle if there is anything being processed.
-    {
+    } 
+    else if (_CPU.isExecuting) { // If there are no interrupts then run one CPU cycle if there is anything being processed.
         _CPU.cycle();
-    }
-    else // If there are no interrupts and there is nothing being executed then just be idle.
-    {
+    } 
+    else { // If there are no interrupts and there is nothing being executed then just be idle.
         krnTrace("Idle");
     }
 }
@@ -116,7 +114,7 @@ function krnInterruptHandler(irq, params) // This is the Interrupt Handler Routi
         break;
     case KEYBOARD_IRQ:
         krnKeyboardDriver.isr(params); // Kernel mode device driver
-        if (_Console.active) {
+        if (_StdIn.active) {
             _StdIn.handleInput();
         }
         break;
@@ -125,6 +123,16 @@ function krnInterruptHandler(irq, params) // This is the Interrupt Handler Routi
         break;
     case INVALID_KEY_IRQ:
         hostLog("Invalid Key")
+        break;
+    case PROCESS_SUCCESS_IRQ:
+        _StdIn.putText("{ Process Completed: " + params + " }");
+        _StdIn.advanceLine();
+        _CPU.isExecuting = false; // Re-enable input
+        break;
+    case PROCESS_FAILURE_IRQ:
+        _StdIn.putText(" { Process Failed: " + params + " }");
+        _StdIn.advanceLine();
+        _CPU.isExecuting = false; // Re-enable input
         break;
     case INVALID_BOUNDARY_IRQ:
         hostLog("Process is trying to reach out of bounds. ")
@@ -180,7 +188,7 @@ function krnTrace(msg) {
     if (_Trace) {
         if (msg === "Idle") {
             // We can't log every idle clock pulse because it would lag the browser very quickly.
-            if (_OSclock % 10 == 0) // Check the CPU_CLOCK_INTERVAL in globals.js for an 
+            if (_OSclock % 10 === 0) // Check the CPU_CLOCK_INTERVAL in globals.js for an 
             { // idea of the tick rate and adjust this line accordingly.
                 hostLog(msg, "OS");
             }

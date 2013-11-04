@@ -10,16 +10,18 @@
 
 // Global CONSTANTS
 var APP_NAME = "GyaradOS";
-var APP_VERSION = "0.21";
+var APP_VERSION = "0.22";
 
 var CPU_CLOCK_INTERVAL = 100; // ms
+var TOTAL_MEMORY = 256;
 
-var TIMER_IRQ = 0; // Pages 23 (timer), 9 (interrupts), and 561 (interrupt priority).
-// NOTE: The timer is different from hardware/host clock pulses. Don't confuse these.
+// IRQ enums made with _KernelInterruptQueue.enqueue(new Interrupt(enum, params);
+var TIMER_IRQ = 0;
 var KEYBOARD_IRQ = 1;
 var OS_IRQ = 2;
 var INVALID_KEY_IRQ = 3;
-var TOTAL_MEMORY = 256;
+var PROCESS_SUCCESS_IRQ = 4;
+var PROCESS_FAILURE_IRQ = 5;
 
 
 
@@ -30,14 +32,18 @@ var _MemoryManager;
 var _Console = null;
 var _OsShell = null;
 
+// Standard input and output linked with _Console
+var _StdIn = null;
+var _StdOut = null;
+
 // Memory Globals
-var _curr_pcb; // pointer to the current PCB
+var _curr_pcb;          // pointer to the current PCB
 var _PID = 0;           // The incrementor for making unique process ids
 var _PID_to_PCB = [];   // A mapping of a process id to its control block
 
-var _OSclock = 0; // Page 23.
+var _OSclock = 0;       // Page 23.
 
-var _Mode = 0; // 0 = Kernel Mode, 1 = User Mode.  See page 21.
+var _Mode = 0;          // 0 = Kernel Mode, 1 = User Mode.  See page 21.
 
 // Canvas Globals
 var _Canvas = null; // Initialized in hostInit().
@@ -54,9 +60,6 @@ var _KernelInterruptQueue = null;
 var _KernelBuffers = null;
 var _KernelInputQueue = null;
 
-// Standard input and output
-var _StdIn = null;
-var _StdOut = null;
 
 // Global Device Driver Objects - page 12
 var krnKeyboardDriver = null;
