@@ -223,14 +223,6 @@ function shellExecute(fn, args) {
     }, 100);
 }
 
-
-//
-// The rest of these functions ARE NOT part of the Shell "class" (prototype, more accurately), 
-// as they are not denoted in the constructor.  The idea is that you cannot execute them from
-// elsewhere as shell.xxx .  In a better world, and a more perfect JavaScript, we'd be
-// able to make then private.  (Actually, we can. have a look at Crockford's stuff and Resig's JavaScript Ninja cook.)
-//
-
 // Interior or private classes used only inside Shell()
 function ShellCommand() {
     // Properties
@@ -355,9 +347,9 @@ function shellLoadUPI(args) {
         var user_input = document.getElementById("taProgramInput").value;
         
         if (user_input !== "") { // There is something in the UPI
-            var hex_pairs = user_input.split(" ");
+            var hex_pairs = user_input.split(" "); // Array of all of the hex code pairs
             
-            if (hex_pairs.length < TOTAL_MEMORY) {
+            if (hex_pairs.length < _PARTITION_SIZE) {
                 // Check each set to see if its only a pair of hexidecimals
                 var invalid = false;
                 hex_pairs.forEach(function(hex_set) {
@@ -376,14 +368,8 @@ function shellLoadUPI(args) {
                 });
                 
                 if (invalid) {return;}
-                
-                var hex_codes = [];
-                hex_pairs.forEach(function(hex_pair) {
-                    hex_codes.push(hex_pair);
-                    return;
-                });
             
-                krnCreateProcess(hex_codes);
+                krnCreateProcess(hex_pairs);
             } else {
                 return _StdIn.putText("Invalid: Insufficient memory space.");
             }

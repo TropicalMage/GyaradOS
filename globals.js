@@ -10,10 +10,9 @@
 
 // Global CONSTANTS
 var APP_NAME = "GyaradOS";
-var APP_VERSION = "0.22";
+var APP_VERSION = "0.23";
 
 var CPU_CLOCK_INTERVAL = 100; // ms
-var TOTAL_MEMORY = 256;
 
 // IRQ enums made with _KernelInterruptQueue.enqueue(new Interrupt(enum, params);
 var TIMER_IRQ = 0;
@@ -22,8 +21,8 @@ var OS_IRQ = 2;
 var INVALID_KEY_IRQ = 3;
 var PROCESS_SUCCESS_IRQ = 4;
 var PROCESS_FAILURE_IRQ = 5;
-
-
+var PARTITIONS_FULL_IRQ = 6;
+var INVALID_BOUNDARY_IRQ = 7;
 
 // Global Components
 var _CPU = null;
@@ -38,6 +37,8 @@ var _StdOut = null;
 
 // Memory Globals
 var _curr_pcb;          // pointer to the current PCB
+var _PARTITION_SIZE = 256;
+var _PARTITIONS = 3;    // Number of different sections in memory
 var _PID = 0;           // The incrementor for making unique process ids
 var _PID_to_PCB = [];   // A mapping of a process id to its control block
 

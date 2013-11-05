@@ -134,6 +134,10 @@ function krnInterruptHandler(irq, params) // This is the Interrupt Handler Routi
         _StdIn.advanceLine();
         _CPU.isExecuting = false; // Re-enable input
         break;
+    case PARTITIONS_FULL_IRQ:
+        _StdIn.putText("Load Failure: Partition Size Full");
+        _StdIn.advanceLine();
+        break;
     case INVALID_BOUNDARY_IRQ:
         hostLog("Process is trying to reach out of bounds. ")
         break;
@@ -165,10 +169,15 @@ function krnTimerISR() // The built-in TIMER (not clock) Interrupt Service Routi
 // - CloseFile
 
 function krnCreateProcess(hex_codes) {
-    _MemoryManager.clear();
-    var pcb = new PCB(getNewPID(), 0, 256);
-    start_address = 0;
-    curr_address = 0;
+    var partition_num = _MemoryManager.get_empty_partition();
+    if (partition_num === -1) {return -1;}
+    
+    start_address = (partition_num - 1) * _PARTITION_SIZE;
+    curr_address = (partition_num - 1) * _PARTITION_SIZE;
+    end_address = (partition_num * _PARTITION_SIZE) - 1;
+    
+    var pcb = new PCB(getNewPID(), start_address, end_address);
+    
     _CPU.PC = start_address;
     hex_codes.forEach(function(hex_pair) {
         _MemoryManager.save_hex_pair(curr_address, hex_pair);

@@ -37,7 +37,6 @@ function Cpu() {
     };
 
     this.execute = function() {
-        console.log("C: ", this.PC);
 //        this.PC = _curr_pcb.begin; for this project
         var hex_pair = _MemoryManager.load_hex_pair(this.PC);
         this.PC++;
@@ -116,9 +115,7 @@ function Cpu() {
                 break;
         } 
         // When done with the specific operation, increment PC by the number of parameters used for said operation. 
-        console.log("A: ", this.PC, num_params);
         this.PC += num_params;
-        console.log("B: ", this.PC, num_params);
     };
 }
 
