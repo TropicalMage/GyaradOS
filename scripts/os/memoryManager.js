@@ -1,26 +1,32 @@
 function MemoryManager() {
-    function Partition(start, end) {
+    for (var i = 0; i < _NUM_PARTITIONS; i++) {
+        _PARTITIONS.push(new Partition(i + 1, i * _PARTITION_SIZE, (i + 1) * _PARTITION_SIZE - 1));
+    }
+
+    function Partition(id, start, end) {
+        this.id = 0;
         this.start = start;
         this.end = end;
+        this.empty = true;
     }
     
     // Sets a value to an index in memory
-    this.save_hex_pair = function(index, value) {
-        _memory[index] = value;
+    this.save_hex_pair = function(offset, value) {
+        _memory[_curr_pcb.begin + offset] = value;
     };
     
     // Gets the value from an index in memory
-    this.load_hex_pair = function(index) {
-        return _memory[index];
+    this.load_hex_pair = function(offset) {
+        return _memory[_curr_pcb.begin + offset];
     };
     
     this.get_partition = function(part_number) {
-        return new Partition((part_number - 1) * 256, (part_number * 256) - 1);
+        return _PARTITIONS[part_number - 1];
     };
     
     this.get_empty_partition = function() {
-        for (var i = 0; i < _PARTITIONS; i++) {
-            if (_memory[i * _PARTITION_SIZE] === "00") {
+        for (var i = 0; i < _NUM_PARTITIONS; i++) {
+            if (_PARTITIONS[i].empty) {
                 return i + 1;
             }
         }

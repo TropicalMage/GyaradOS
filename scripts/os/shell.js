@@ -387,8 +387,8 @@ function shellRun(args) {
         if (_PID_to_PCB.length > args[0]) {
             var pcb = _PID_to_PCB[args[0]];
             _curr_pcb = pcb;
-            _CPU.isExecuting = true;
             _CPU.switch_context(pcb);
+            _CPU.isExecuting = true;
         } else {
             return _StdIn.putText("Invalid: Unable to locate the pcb. Avaliable processes: " + _PID_to_PCB.length);
         }

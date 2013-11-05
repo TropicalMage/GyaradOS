@@ -10,7 +10,7 @@
 
 // Global CONSTANTS
 var APP_NAME = "GyaradOS";
-var APP_VERSION = "0.23";
+var APP_VERSION = "0.24";
 
 var CPU_CLOCK_INTERVAL = 100; // ms
 
@@ -38,9 +38,10 @@ var _StdOut = null;
 // Memory Globals
 var _curr_pcb;          // pointer to the current PCB
 var _PARTITION_SIZE = 256;
-var _PARTITIONS = 3;    // Number of different sections in memory
+var _NUM_PARTITIONS = 3;    // Number of different sections in memory
 var _PID = 0;           // The incrementor for making unique process ids
 var _PID_to_PCB = [];   // A mapping of a process id to its control block
+var _PARTITIONS = [];
 
 var _OSclock = 0;       // Page 23.
 

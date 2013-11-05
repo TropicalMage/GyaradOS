@@ -21,14 +21,15 @@ function Cpu() {
     this.Zflag = 0;     // Z ero flag (Think of it as "isZero".)
     this.isExecuting = false;
     this.invalid = "";  // Determines if a currently executing program should continue
+    this.curr_partition = 0;
     
     this.init = function() {
         this.PC    = 0;
         this.Acc   = 0;
         this.Xreg  = 0;
         this.Yreg  = 0;
-        this.Zflag = 0;      
-        this.isExecuting = false;  
+        this.Zflag = 0;
+        this.isExecuting = false;
     };
     
     this.cycle = function() {

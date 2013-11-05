@@ -172,20 +172,22 @@ function krnCreateProcess(hex_codes) {
     var partition_num = _MemoryManager.get_empty_partition();
     if (partition_num === -1) {return -1;}
     
-    start_address = (partition_num - 1) * _PARTITION_SIZE;
-    curr_address = (partition_num - 1) * _PARTITION_SIZE;
-    end_address = (partition_num * _PARTITION_SIZE) - 1;
+    var start_address = (partition_num - 1) * _PARTITION_SIZE;
+    var end_address = (partition_num * _PARTITION_SIZE) - 1;
     
     var pcb = new PCB(getNewPID(), start_address, end_address);
+    _curr_pcb = pcb;
     
-    _CPU.PC = start_address;
+    var curr_offset = 0;
     hex_codes.forEach(function(hex_pair) {
-        _MemoryManager.save_hex_pair(curr_address, hex_pair);
-        curr_address++;
+        _MemoryManager.save_hex_pair(curr_offset, hex_pair);
+        curr_offset++;
     });
     
+    _MemoryManager.get_partition(partition_num).empty = false;
+    
     _PID_to_PCB[pcb.pid] = pcb;
-    return _StdIn.putText("Success. Unique PID: " + pcb.pid);
+    return _StdIn.putText("Unique PID: " + pcb.pid);
 }
 
 

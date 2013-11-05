@@ -10,6 +10,12 @@ body {
     color:#FFFFFF;
 }
 
+#toptable {
+    border: 0;
+    text-align: center;
+    padding: 5 200px;
+}
+
 #display {
     background-color:#000000;
     border: 2px solid blue;
