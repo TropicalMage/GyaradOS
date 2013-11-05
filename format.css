@@ -10,12 +10,6 @@ body {
     color:#FFFFFF;
 }
 
-#toptable {
-    border: 0;
-    text-align: center;
-    padding: 5 200px;
-}
-
 #display {
     background-color:#000000;
     border: 2px solid blue;
@@ -52,8 +46,19 @@ td {
 table {
     border-collapse:collapse;
 }
-table, th, td {
+
+#memory table, #memory th, #memory td {
     border: 1px solid white;
+}
+
+#pcdata table, #pcdata th, #pcdata td {
+    border: 1px solid white;
+}
+
+#toptable table, #toptable th, #toptable td {
+    border: 0;
+    text-align: center;
+    padding: 0 230px;
 }
 
 #log {
