@@ -23,6 +23,7 @@ var PROCESS_SUCCESS_IRQ = 4;
 var PROCESS_FAILURE_IRQ = 5;
 var PARTITIONS_FULL_IRQ = 6;
 var INVALID_BOUNDARY_IRQ = 7;
+var CONTEXT_SWITCH_IRQ = 8;
 
 // Global Components
 var _CPU = null;
@@ -30,6 +31,8 @@ var _memory = [];
 var _MemoryManager;
 var _Console = null;
 var _OsShell = null;
+var _quantum = 6;
+var _quantum_counter = 0;
 
 // Standard input and output linked with _Console
 var _StdIn = null;
@@ -40,8 +43,9 @@ var _curr_pcb;          // pointer to the current PCB
 var _PARTITION_SIZE = 256;
 var _NUM_PARTITIONS = 3;    // Number of different sections in memory
 var _PID = 0;           // The incrementor for making unique process ids
-var _PID_to_PCB = [];   // A mapping of a process id to its control block
+var _residency = [];   // A mapping for all avaliable PCBs
 var _PARTITIONS = [];
+var _ready_queue = []; 	// The queue of all ready processes
 
 var _OSclock = 0;       // Page 23.
 

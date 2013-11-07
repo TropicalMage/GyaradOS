@@ -28,8 +28,8 @@
         <script type="text/javascript" src="scripts/os/kernel.js"></script>
         <!-- Other Routines -->
         <script type="text/javascript" src="scripts/utils.js"></script>
-        <script type="text/javascript" src="http://www.labouseur.com/courses/os/projects/glados.js"></script>
-    </head>
+        <!--<script type="text/javascript" src="http://www.labouseur.com/courses/os/projects/glados.js"></script>
+    --></head>
     
     <body onload="hostInit();">
     
@@ -76,9 +76,9 @@
                 <tr>
                     <th>PC</th>
                     <th>Acc</th>
-                    <th>X-Reg</th>
-                    <th>Y-Reg</th>
-                    <th>Z-Flag</th>
+                    <th>XReg</th>
+                    <th>YReg</th>
+                    <th>ZFlag</th>
                 </tr>
                 <tr>
                     <td id="programCounter">0</td>
@@ -86,6 +86,33 @@
                     <td id ="Xreg">0</td>
                     <td id ="Yreg">0</td>
                     <td id ="ZFlag">0</td>
+                </tr>
+            </table>
+			
+            <table border="1" id="readytable">
+                <tr>
+                    <th>PID</th>
+                    <th>State</th>
+                    <th>Begin</th>
+                    <th>End</th>
+                </tr>
+                <tr>
+                    <td id ="pid0">-</td>
+                    <td id ="state0">-</td>
+                    <td id ="begin0">-</td>
+                    <td id ="end0">-</td>
+                </tr>
+                <tr>
+                    <td id ="pid1">-</td>
+                    <td id ="state1">-</td>
+                    <td id ="begin1">-</td>
+                    <td id ="end1">-</td>
+                </tr>
+                <tr>
+                    <td id ="pid2">-</td>
+                    <td id ="state2">-</td>
+                    <td id ="begin2">-</td>
+                    <td id ="end2">-</td>
                 </tr>
             </table>
             

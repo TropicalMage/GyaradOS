@@ -23,7 +23,7 @@ body {
 #memory {
     float:left;
     height: 400px;
-    width: 200px;
+    width: 250px;
     overflow: auto;
     background-color: #000000;
     padding: 0 5px;
@@ -47,6 +47,12 @@ table {
     border-collapse:collapse;
 }
 
+#toptable table, #toptable th, #toptable td {
+    border: 0;
+    text-align: center;
+    padding: 0 230px;
+}
+
 #memory table, #memory th, #memory td {
     border: 1px solid white;
 }
@@ -55,10 +61,9 @@ table {
     border: 1px solid white;
 }
 
-#toptable table, #toptable th, #toptable td {
-    border: 0;
-    text-align: center;
-    padding: 0 230px;
+#readytable table, #readytable th, #readytable td {
+    border: 1px solid white;
+	padding: 0 5px;
 }
 
 #log {

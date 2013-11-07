@@ -19,7 +19,6 @@ function Cpu() {
     this.Xreg  = 0;     // X register (hex)
     this.Yreg  = 0;     // Y register (hex)
     this.Zflag = 0;     // Z ero flag (Think of it as "isZero".)
-    this.isExecuting = false;
     this.invalid = "";  // Determines if a currently executing program should continue
     this.curr_partition = 0;
     
@@ -29,29 +28,33 @@ function Cpu() {
         this.Xreg  = 0;
         this.Yreg  = 0;
         this.Zflag = 0;
-        this.isExecuting = false;
     };
     
     this.cycle = function() {
         krnTrace("CPU cycle");
-        this.execute();
+		
+		if (_ready_queue.length !== 0) {this.execute();}
+		
+		_quantum_counter++;
+		if (_quantum_counter >= _quantum) {
+			krnRotateProcess();
+			_quantum_counter = 0;
+		}
     };
 
     this.execute = function() {
-//        this.PC = _curr_pcb.begin; for this project
         var hex_pair = _MemoryManager.load_hex_pair(this.PC);
         this.PC++;
         this.do_op_code(hex_pair);
-        // The program properly finished, so set the final CPU state to the pcb's state
-        if (this.invalid === "") {
+        
+        if (this.invalid === "") { // The cycle properly finished, so update pcb's state to the CPU's
             _curr_pcb.PC = this.PC;
             _curr_pcb.Acc = this.Acc;
             _curr_pcb.Xreg = this.Xreg;
             _curr_pcb.Yreg = this.Yreg;
             _curr_pcb.Zflag = this.Zflag;
-        } 
-        // Else print the invalid statement from any of the do-op methods
-        else {
+        }  
+		else { // Else print the invalid statement from any of the do-op methods
             _KernelInterruptQueue.enqueue(new Interrupt(PROCESS_FAILURE_IRQ, this.invalid));
             this.invalid = "";
         }
@@ -63,11 +66,11 @@ function Cpu() {
         this.Acc   = a_pcb.Acc;
         this.Xreg  = a_pcb.Xreg;
         this.Yreg  = a_pcb.Yreg;
-        this.Zflag = a_pcb.Zflag;   
+        this.Zflag = a_pcb.Zflag;  
     };
     
     // Filters a hex code combination into an op-code
-    this.do_op_code = function(hex_pair) {
+    this.do_op_code = function(hex_pair) { // Shooby Do-Op. Do op. DO OP
         var num_params = 0;
         switch(hex_pair) {
             case "A9": 
@@ -112,7 +115,7 @@ function Cpu() {
                 system_call();
                 break;
             default: 
-                this.invalid = "Unreadable hex op-code: (PC: " + this.PC + ", Hex_Pair: " + hex_pair + ")";
+                this.invalid = "Unreadable Hex: (PC: " + this.PC + ", Pair: " + hex_pair + ")";
                 break;
         } 
         // When done with the specific operation, increment PC by the number of parameters used for said operation. 

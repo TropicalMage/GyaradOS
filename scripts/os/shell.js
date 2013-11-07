@@ -93,6 +93,13 @@ function shellInit() {
     sc.function = shellSetStatus;
     this.commandList[this.commandList.length] = sc;
     
+    // showpid
+    sc = new ShellCommand();
+    sc.command = "showpid";
+    sc.description = "- Shows all of the active processes.";
+    sc.function = shellShowRdyPID;
+    this.commandList[this.commandList.length] = sc;
+	
     // load
     sc = new ShellCommand();
     sc.command = "load";
@@ -100,11 +107,25 @@ function shellInit() {
     sc.function = shellLoadUPI;
     this.commandList[this.commandList.length] = sc;
     
-    // run
+    // run <int>
     sc = new ShellCommand();
     sc.command = "run";
     sc.description = "<int> - Runs the process of a PID Index";
     sc.function = shellRun;
+    this.commandList[this.commandList.length] = sc;
+	
+    // runall
+    sc = new ShellCommand();
+    sc.command = "runall";
+    sc.description = "- Runs all of the programs using RR scheduling.";
+    sc.function = shellRunAll;
+    this.commandList[this.commandList.length] = sc;
+    
+    // kill <pid>
+    sc = new ShellCommand();
+    sc.command = "kill";
+    sc.description = "<pid> - Stops the PID from running.";
+    sc.function = shellKill;
     this.commandList[this.commandList.length] = sc;
 
     // whereami
@@ -127,6 +148,13 @@ function shellInit() {
     sc.description = "- Illogical text adventure. 'game help' for instructions.";
     sc.function = shellGame;
     this.commandList[this.commandList.length] = sc;
+	
+    // Quantum <int>
+    sc = new ShellCommand();
+    sc.command = "quantum";
+    sc.description = "<int> - Changes the quantum of the Round Robin Schedule.";
+    sc.function = shellQuantum;
+    this.commandList[this.commandList.length] = sc;
 
     // processes - list the running processes and their IDs
     // kill <id> - kills the specified process id.
@@ -139,7 +167,7 @@ function shellInit() {
 }
 
 function shellPutPrompt() {
-    _StdIn.putText(this.promptStr);
+    _StdIn.putText(_OsShell.promptStr);
 }
 
 function shellHandleInput(buffer) {
@@ -209,10 +237,10 @@ function shellExecute(fn, args) {
         _StdIn.advanceLine();
     }
     // ... and finally write the prompt again.
-    
+    shellPutPrompt();
     _Console.active = false;
     
-    var timerId = null;
+/*     var timerId = null;
     timerId = setInterval(function() {
         if(!_CPU.isExecuting) { 
             _OsShell.putPrompt();
@@ -220,7 +248,7 @@ function shellExecute(fn, args) {
             _Console.handleInput();
             clearTimeout(timerId);
         }
-    }, 100);
+    }, 100); */
 }
 
 // Interior or private classes used only inside Shell()
@@ -240,7 +268,6 @@ function UserCommand() {
 
 
 /* Shell Command Functions.  Again, not part of Shell() class per se', just called from there. */
-
 function shellInvalidCommand() {
     _StdIn.putText("Invalid Command. Use 'help' to guide you.");
 }
@@ -284,7 +311,6 @@ function shellMan(args) {
     }
 }
 
-// Trace Command
 function shellTrace(args) {
     if (args.length > 0) {
         var setting = args[0];
@@ -306,7 +332,6 @@ function shellTrace(args) {
     }
 }
 
-// Rotate Command
 function shellRot13(args) {
     if (args.length > 0) {
         _StdIn.putText(args[0] + " = '" + rot13(args[0]) + "'"); // Requires Utils.js for rot13() function.
@@ -316,7 +341,6 @@ function shellRot13(args) {
     }
 }
 
-// Prompt Command
 function shellPrompt(args) {
     if (args.length > 0) {
         _OsShell.promptStr = args[0];
@@ -326,8 +350,6 @@ function shellPrompt(args) {
     }
 }
 
-
-// Date Command
 function shellDisplayDate(args) {
     var today = new Date();
     var day = today.getDate();
@@ -336,12 +358,20 @@ function shellDisplayDate(args) {
     _StdIn.putText(month + "/" + day + "/" + year);
 }
 
-// Status Command
 function shellSetStatus(args) {
     document.getElementById("divStatus").innerHTML = "Status: " + args;
 }
 
-// Load Command
+function shellShowRdyPID(args) {
+	var stringy = "PIDs Running: ";
+	for(var i = 0; i < _ready_queue.length; i++) {
+		stringy += _ready_queue[i].pid + " > "
+	}
+	stringy = stringy.substring(0, stringy.length - 2)
+	
+	return _StdIn.putText(stringy);
+}
+
 function shellLoadUPI(args) {
     if (args.length === 0) { // No args
         var user_input = document.getElementById("taProgramInput").value;
@@ -381,33 +411,81 @@ function shellLoadUPI(args) {
     }
 }
 
-// Run Command
 function shellRun(args) {
     if (args.length === 1) { // Need only an int
-        if (_PID_to_PCB.length > args[0]) {
-            var pcb = _PID_to_PCB[args[0]];
+        if (_residency.length > args[0]) {
+            var pcb = _residency[args[0]];
+			
+			if(pcb.state !== "Waiting") {
+				return _StdIn.putText("Fail: This program has already ran.");
+			}
+			
+			_ready_queue.push(pcb);
             _curr_pcb = pcb;
-            _CPU.switch_context(pcb);
-            _CPU.isExecuting = true;
+			
+			_KernelInterruptQueue.enqueue(new Interrupt(CONTEXT_SWITCH_IRQ, pcb));
+			_curr_pcb.state = "Running";
         } else {
-            return _StdIn.putText("Invalid: Unable to locate the pcb. Avaliable processes: " + _PID_to_PCB.length);
+            return _StdIn.putText("Fail: Can't find the PCB");
         }
     } else {
-        return _StdIn.putText("Invalid: Use a single pid to run a specific process.");
+        return _StdIn.putText("Fail: Use a single pid to run a specific process.");
     }
 }
 
-// Where Am I Command
+function shellRunAll(args) {
+	for(var i = 0; i < _residency.length; i++) {
+		var pcb = _residency[i];
+		if (pcb.state === "Waiting") {
+			_ready_queue.push(pcb);
+		}
+	}
+	if(_ready_queue.length === 0) {
+		return _StdIn.putText("Fail: No program is waiting to be executed.");
+	}
+	
+	// Set the current pcb and context to the front of the queue for the first section
+    _curr_pcb = _ready_queue[0];
+	_curr_pcb.state = "Running";
+	_KernelInterruptQueue.enqueue(new Interrupt(CONTEXT_SWITCH_IRQ, pcb));
+}
+
 function shellShowLocation(args) {
     _StdIn.putText("Where aren't you?");
 }
 
-// BSOD Command
+function shellKill(args) {
+	var intRegex = /^\d+$/;
+	if(intRegex.test(args)) { // It's an integer
+		// Need to find the index of the PID we need to kill
+		args = parseInt(args);
+		var index = -1;
+		for(var i = 0; i < _ready_queue.length; i++) {
+			if(_ready_queue[i].pid === args) {index = i;}
+		}
+		if(index != -1) {
+			console.log(_ready_queue[0], _ready_queue[1], _ready_queue[2]);
+			_ready_queue.splice(index, index + 1);
+			console.log(_ready_queue[0], _ready_queue[1]);
+			_StdIn.advanceLine();
+			
+			// Set the current pcb and the context to the front of the queue
+			if(index === 0 && _ready_queue.length > 0) {
+				_curr_pcb = _ready_queue[0];
+				_KernelInterruptQueue.enqueue(new Interrupt(CONTEXT_SWITCH_IRQ, _curr_pcb));
+			}
+		} else {
+			return _StdIn.putText("Fail: Can't find given pid");
+		}
+	} else {
+		return _StdIn.putText("Fail: Please input a pid");
+	}
+}
+
 function shellNuclearWar(args) {
     _KernelInterruptQueue.enqueue(new Interrupt(OS_IRQ, "test"));
 }
 
-// Game Command
 function shellGame(args) {
     if (args.length > 0) {
         var action = args[0];
@@ -422,7 +500,7 @@ function shellGame(args) {
                 _StdIn.putText("You swing your sword at the mighty foe. He seems unfazed.");
                 break;
             case "jump":
-                _StdIn.putText("You leap two feet into the air. After all that exercise, you feel TIRED.");
+                _StdIn.putText("You leap two feet into the air. Afterwards, you feel TIRED.");
                 break;
             case "dance":
                 if(this.game1 && this.game2) {
@@ -447,14 +525,14 @@ function shellGame(args) {
                 this.game1 = 0;
                 break;
             case "swing":
-                _StdIn.putText("The stick did less damage than the sword. What did you expect?");
+                _StdIn.putText("The stick did less damage than the sword. Who knew!?");
                 this.game2 = 0;
                 break;
             case "special":
-                _StdIn.putText("You dash at the beast with your rainbow colored sword. CONTINUE.");
+                _StdIn.putText("You dash forward with your rainbow colored sword. CONTINUE.");
                 break;
             case "continue":
-                _StdIn.putText("You swing your sword and slice the beast in two. You are WINNER!");
+                _StdIn.putText("Your sword cleaves the beast in two. You are WINNER!");
                 break;
             case "winner":
                 _StdIn.putText("SUPER win! Seriously, it's over. There's nothing left. ");
@@ -471,7 +549,15 @@ function shellGame(args) {
     }
 }
 
-// Refreshes the Clock in the Corner
+function shellQuantum(args) {
+	var intRegex = /^\d+$/;
+	if(intRegex.test(args)) {
+		_quantum = args;
+	} else {
+		_StdIn.putText("Fail: Please input an integer");
+	}
+}
+
 function updateClock() {
     var date = new Date();
     var weekday = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];

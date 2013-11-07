@@ -3,9 +3,9 @@ function PCB (pid, begin, end)  {
 	this.pid	= pid;  	// Process ID (int)
 	this.begin	= begin;  	// Starting Address (int)
 	this.end    = end;	    // Last Address (int)
+	this.state = "Waiting"
 	
 	// Future things to save the state of the Process Control Block
-	this.state =    0;
     this.PC    = 0;
     this.Acc   = 0;
     this.Xreg  = 0;

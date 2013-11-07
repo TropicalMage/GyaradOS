@@ -61,28 +61,74 @@ function krnShutdown() {
     krnTrace("end shutdown OS");
 }
 
-
+// This gets called from the host hardware sim every time there is a hardware clock pulse.
 function krnOnCPUClockPulse() {
-    /* This gets called from the host hardware sim every time there is a hardware clock pulse.
-       This is NOT the same as a TIMER, which causes an interrupt and is handled like other interrupts.
-       This, on the other hand, is the clock pulse from the hardware (or host) that tells the kernel 
-       that it has to look for interrupts and process them if it finds any.                           */
-
-    // Check for an interrupt, are any. Page 560
     if (_KernelInterruptQueue.getSize() > 0) {
         // Process the first interrupt on the interrupt queue.
         // TODO: Implement a priority queue based on the IRQ number/id to enforce interrupt priority.
         var interrupt = _KernelInterruptQueue.dequeue();
         krnInterruptHandler(interrupt.irq, interrupt.params);
     } 
-    else if (_CPU.isExecuting) { // If there are no interrupts then run one CPU cycle if there is anything being processed.
+    else if (_ready_queue.length > 0) { // If there are no interrupts then run one CPU cycle if there is anything being processed.
         _CPU.cycle();
     } 
     else { // If there are no interrupts and there is nothing being executed then just be idle.
         krnTrace("Idle");
     }
+	
+	// Update the display on the Ready Table
+	for(var i = 0; i < _ready_queue.length; i++) {
+		document.getElementById("pid" + i).innerHTML = _ready_queue[i].pid;
+		document.getElementById("state" + i).innerHTML = _ready_queue[i].state;
+		document.getElementById("begin" + i).innerHTML = _ready_queue[i].begin;
+		document.getElementById("end" + i).innerHTML = _ready_queue[i].end;
+	}
+	for(var i = _ready_queue.length; i < 3; i++) {
+		document.getElementById("pid" + i).innerHTML = "-";
+		document.getElementById("state" + i).innerHTML = "-";
+		document.getElementById("begin" + i).innerHTML = "-";
+		document.getElementById("end" + i).innerHTML = "-";
+	}
 }
 
+function krnCreateProcess(hex_codes) {
+    var partition_num = _MemoryManager.get_empty_partition();
+    if (partition_num === -1) {return -1;}
+    
+    var start_address = (partition_num - 1) * _PARTITION_SIZE;
+    var end_address = (partition_num * _PARTITION_SIZE) - 1;
+    
+    var pcb = new PCB(getNewPID(), start_address, end_address);
+	
+    _curr_pcb = pcb;
+    
+    var curr_offset = 0;
+    hex_codes.forEach(function(hex_pair) {
+        _MemoryManager.save_hex_pair(curr_offset, hex_pair);
+        curr_offset++;
+    });
+    
+    _MemoryManager.get_partition(partition_num).empty = false;
+    
+    _residency[pcb.pid] = pcb;
+    return _StdIn.putText("Unique PID: " + pcb.pid);
+}
+
+function krnRotateProcess() {
+
+	_ready_queue[0].state = "Ready";
+	document.getElementById("state" + _ready_queue[0].pid).innerHTML = "Ready";
+	// Move the queue so that the front moves to the end of the queue
+	var old_front = _ready_queue.shift();
+	_ready_queue.push(old_front);
+	
+	_ready_queue[0].state = "Running";
+	// Set the current pcb and the context to the front of the queue
+	_curr_pcb = _ready_queue[0];
+	
+	hostLog("Schedule Swap to " + _curr_pcb.pid);
+	_KernelInterruptQueue.enqueue(new Interrupt(CONTEXT_SWITCH_IRQ, _curr_pcb));
+}
 
 // 
 // Interrupt Handling
@@ -114,9 +160,9 @@ function krnInterruptHandler(irq, params) // This is the Interrupt Handler Routi
         break;
     case KEYBOARD_IRQ:
         krnKeyboardDriver.isr(params); // Kernel mode device driver
-        if (_StdIn.active) {
+//        if (_StdIn.active) { // Prevents keyboard interrupts from occurring during execution
             _StdIn.handleInput();
-        }
+//        }
         break;
     case OS_IRQ:
         krnOSTrapError("You done goofed: " + params);
@@ -125,22 +171,40 @@ function krnInterruptHandler(irq, params) // This is the Interrupt Handler Routi
         hostLog("Invalid Key")
         break;
     case PROCESS_SUCCESS_IRQ:
-        _StdIn.putText("{ Process Completed: " + params + " }");
+        _StdIn.putText(" { Process Done | " + params + " }");
+		_curr_pcb.pid = "-";
+		_curr_pcb.state = "-";
+		_curr_pcb.begin = "-";
+		_curr_pcb.end = "-";
+		
         _StdIn.advanceLine();
-        _CPU.isExecuting = false; // Re-enable input
+		
+		_ready_queue.shift();
+		document.getElementById("pid" + _ready_queue.length).innerHTML = "-";
+		document.getElementById("state" + _ready_queue.length).innerHTML = "-";
+		document.getElementById("begin" + _ready_queue.length).innerHTML = "-";
+		document.getElementById("end" + _ready_queue.length).innerHTML = "-";
+		
+		// Set the current pcb and the context to the front of the queue
+		if(_ready_queue.length !== 0) {
+			_curr_pcb = _ready_queue[0];
+			_KernelInterruptQueue.enqueue(new Interrupt(CONTEXT_SWITCH_IRQ, _curr_pcb));
+		}
         break;
     case PROCESS_FAILURE_IRQ:
-        _StdIn.putText(" { Process Failed: " + params + " }");
+        _StdIn.putText(" { Process Fail | " + params + " }");
         _StdIn.advanceLine();
-        _CPU.isExecuting = false; // Re-enable input
         break;
     case PARTITIONS_FULL_IRQ:
-        _StdIn.putText("Load Failure: Partition Size Full");
+        _StdIn.putText(" { Load Fail | Partition Size Full }");
         _StdIn.advanceLine();
         break;
     case INVALID_BOUNDARY_IRQ:
         hostLog("Process is trying to reach out of bounds. ")
         break;
+	case CONTEXT_SWITCH_IRQ:
+		_CPU.switch_context(params);
+		break;
     default:
         krnTrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");
     }
@@ -167,29 +231,6 @@ function krnTimerISR() // The built-in TIMER (not clock) Interrupt Service Routi
 // - ReadFile
 // - WriteFile
 // - CloseFile
-
-function krnCreateProcess(hex_codes) {
-    var partition_num = _MemoryManager.get_empty_partition();
-    if (partition_num === -1) {return -1;}
-    
-    var start_address = (partition_num - 1) * _PARTITION_SIZE;
-    var end_address = (partition_num * _PARTITION_SIZE) - 1;
-    
-    var pcb = new PCB(getNewPID(), start_address, end_address);
-    _curr_pcb = pcb;
-    
-    var curr_offset = 0;
-    hex_codes.forEach(function(hex_pair) {
-        _MemoryManager.save_hex_pair(curr_offset, hex_pair);
-        curr_offset++;
-    });
-    
-    _MemoryManager.get_partition(partition_num).empty = false;
-    
-    _PID_to_PCB[pcb.pid] = pcb;
-    return _StdIn.putText("Unique PID: " + pcb.pid);
-}
-
 
 //
 // OS Utility Routines
