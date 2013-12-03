@@ -1,10 +1,9 @@
 function MemoryManager() {
     for (var i = 0; i < _NUM_PARTITIONS; i++) {
-        _PARTITIONS.push(new Partition(i + 1, i * _PARTITION_SIZE, (i + 1) * _PARTITION_SIZE - 1));
+        _PARTITIONS.push(new Partition(i * _PARTITION_SIZE, (i + 1) * _PARTITION_SIZE - 1));
     }
 
-    function Partition(id, start, end) {
-        this.id = 0;
+    function Partition(start, end) {
         this.start = start;
         this.end = end;
         this.empty = true;
@@ -21,22 +20,43 @@ function MemoryManager() {
     };
     
     this.get_partition = function(part_number) {
-        return _PARTITIONS[part_number - 1];
+        return _PARTITIONS[part_number];
     };
+	
+	this.get_partition_by_PCB = function(pcb) {
+		for(var i = 0; i < _NUM_PARTITIONS; i++) {
+			if(pcb.begin === _PARTITIONS[i].start) {
+				return _PARTITIONS[i];
+			}
+		}
+		return null;
+	};
     
     this.get_empty_partition = function() {
         for (var i = 0; i < _NUM_PARTITIONS; i++) {
             if (_PARTITIONS[i].empty) {
-                return i + 1;
+                return _PARTITIONS[i];
             }
         }
         
+		// No empty partitions
         _KernelInterruptQueue.enqueue(new Interrupt(PARTITIONS_FULL_IRQ, ""));
-        return -1;
+        return null;
     };
     
-    this.clear = function() {
+    this.clear_all = function() {
         for (var i = 0; i < _memory.length; i++)
             _memory[i] = "00";
+		
+		for(var i = 0; i < _NUM_PARTITIONS; i++) {
+			_PARTITIONS[i].empty = true;
+		}
+    };
+	
+    this.clear_partition = function(partition) {
+        for (var i = partition.start; i <= partition.end; i++) {
+            _memory[i] = "00";
+		}
+		partition.empty = true;
     };
 }

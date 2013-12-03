@@ -12,7 +12,7 @@
 var APP_NAME = "GyaradOS";
 var APP_VERSION = "0.25";
 
-var CPU_CLOCK_INTERVAL = 100; // ms
+var CPU_CLOCK_INTERVAL = 10; // ms
 
 // IRQ enums made with _KernelInterruptQueue.enqueue(new Interrupt(enum, params);
 var TIMER_IRQ = 0;
@@ -39,17 +39,17 @@ var _StdIn = null;
 var _StdOut = null;
 
 // Memory Globals
-var _curr_pcb;          // pointer to the current PCB
+var _curr_pcb; 					// pointer to the current PCB
 var _PARTITION_SIZE = 256;
-var _NUM_PARTITIONS = 3;    // Number of different sections in memory
-var _PID = 0;           // The incrementor for making unique process ids
-var _residency = [];   // A mapping for all avaliable PCBs
-var _PARTITIONS = [];
-var _ready_queue = []; 	// The queue of all ready processes
+var _NUM_PARTITIONS = 3; 		// Number of different sections in memory
+var _PID = 0; 					// The incrementor for making unique process ids
+var _residency = []; 			// A mapping for all avaliable PCBs
+var _PARTITIONS = []; 			// Array of Partition Objects #Mem Man
+var _ready_queue = []; 			// The queue of all ready processes
 
-var _OSclock = 0;       // Page 23.
+var _OSclock = 0; // Page 23.
 
-var _Mode = 0;          // 0 = Kernel Mode, 1 = User Mode.  See page 21.
+var _Mode = 0; // 0 = Kernel Mode, 1 = User Mode.  See page 21.
 
 // Canvas Globals
 var _Canvas = null; // Initialized in hostInit().

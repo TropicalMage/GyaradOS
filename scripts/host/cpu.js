@@ -247,7 +247,7 @@ load_y_reg_from_memory = function() {
 };
 
 system_break = function() {
-    _KernelInterruptQueue.enqueue(new Interrupt(PROCESS_SUCCESS_IRQ, "(" + _curr_pcb.to_string() + ")"));
+    _KernelInterruptQueue.enqueue(new Interrupt(PROCESS_SUCCESS_IRQ, _curr_pcb.pid));
 }; 
 
 compare_to_x_reg = function() {

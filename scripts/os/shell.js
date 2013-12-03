@@ -454,32 +454,8 @@ function shellShowLocation(args) {
     _StdIn.putText("Where aren't you?");
 }
 
-function shellKill(args) {
-	var intRegex = /^\d+$/;
-	if(intRegex.test(args)) { // It's an integer
-		// Need to find the index of the PID we need to kill
-		args = parseInt(args);
-		var index = -1;
-		for(var i = 0; i < _ready_queue.length; i++) {
-			if(_ready_queue[i].pid === args) {index = i;}
-		}
-		if(index != -1) {
-			console.log(_ready_queue[0], _ready_queue[1], _ready_queue[2]);
-			_ready_queue.splice(index, index + 1);
-			console.log(_ready_queue[0], _ready_queue[1]);
-			_StdIn.advanceLine();
-			
-			// Set the current pcb and the context to the front of the queue
-			if(index === 0 && _ready_queue.length > 0) {
-				_curr_pcb = _ready_queue[0];
-				_KernelInterruptQueue.enqueue(new Interrupt(CONTEXT_SWITCH_IRQ, _curr_pcb));
-			}
-		} else {
-			return _StdIn.putText("Fail: Can't find given pid");
-		}
-	} else {
-		return _StdIn.putText("Fail: Please input a pid");
-	}
+function shellKill(args) { // ARGS: PID
+	krnKillProcess(args);
 }
 
 function shellNuclearWar(args) {

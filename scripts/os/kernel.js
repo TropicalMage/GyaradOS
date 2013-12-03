@@ -77,26 +77,30 @@ function krnOnCPUClockPulse() {
     }
 	
 	// Update the display on the Ready Table
+	// 		Ready processes on top
 	for(var i = 0; i < _ready_queue.length; i++) {
 		document.getElementById("pid" + i).innerHTML = _ready_queue[i].pid;
 		document.getElementById("state" + i).innerHTML = _ready_queue[i].state;
 		document.getElementById("begin" + i).innerHTML = _ready_queue[i].begin;
 		document.getElementById("end" + i).innerHTML = _ready_queue[i].end;
+		document.getElementById("pc" + i).innerHTML = _ready_queue[i].PC;
 	}
+	// 		Dashes if you have no remaining processes
 	for(var i = _ready_queue.length; i < 3; i++) {
 		document.getElementById("pid" + i).innerHTML = "-";
 		document.getElementById("state" + i).innerHTML = "-";
 		document.getElementById("begin" + i).innerHTML = "-";
 		document.getElementById("end" + i).innerHTML = "-";
+		document.getElementById("pc" + i).innerHTML = "-";
 	}
 }
 
 function krnCreateProcess(hex_codes) {
-    var partition_num = _MemoryManager.get_empty_partition();
-    if (partition_num === -1) {return -1;}
+    var partition = _MemoryManager.get_empty_partition();
+    if (partition === null) {return -1;}
     
-    var start_address = (partition_num - 1) * _PARTITION_SIZE;
-    var end_address = (partition_num * _PARTITION_SIZE) - 1;
+    var start_address = partition.start;
+    var end_address = partition.end;
     
     var pcb = new PCB(getNewPID(), start_address, end_address);
 	
@@ -108,16 +112,49 @@ function krnCreateProcess(hex_codes) {
         curr_offset++;
     });
     
-    _MemoryManager.get_partition(partition_num).empty = false;
+    partition.empty = false;
     
     _residency[pcb.pid] = pcb;
     return _StdIn.putText("Unique PID: " + pcb.pid);
 }
 
+function krnKillProcess(pid) {
+	var intRegex = /^\d+$/;
+	if(intRegex.test(pid)) { // It's an integer
+		pid = parseInt(pid);
+		
+		// Need to find the index of the PID we need to kill
+		var index = -1;
+		for(var i = 0; i < _ready_queue.length; i++) {
+			if(_ready_queue[i].pid === pid) {index = i;}
+		}
+		if(index != -1) {
+			// Now we have to find the parition with the destroyed PID and clear it. 
+			var partition = _MemoryManager.get_partition_by_PCB(_ready_queue[index]);
+			_MemoryManager.clear_partition(partition);
+			
+			// Remove it from the ready queue
+			_ready_queue.splice(index, index + 1);
+			
+			// Set the current pcb and the context to the front of the queue
+			if(index === 0 && _ready_queue.length > 0) {
+				_curr_pcb = _ready_queue[0];
+				_KernelInterruptQueue.enqueue(new Interrupt(CONTEXT_SWITCH_IRQ, _curr_pcb));
+			}
+			
+			_StdIn.advanceLine();
+		} else {
+			return _StdIn.putText("Fail: Can't find given pid");
+		}
+	} else {
+		return _StdIn.putText("Fail: Please input a pid");
+	}
+}
+
 function krnRotateProcess() {
 
 	_ready_queue[0].state = "Ready";
-	document.getElementById("state" + _ready_queue[0].pid).innerHTML = "Ready";
+	
 	// Move the queue so that the front moves to the end of the queue
 	var old_front = _ready_queue.shift();
 	_ready_queue.push(old_front);
@@ -170,26 +207,12 @@ function krnInterruptHandler(irq, params) // This is the Interrupt Handler Routi
     case INVALID_KEY_IRQ:
         hostLog("Invalid Key")
         break;
-    case PROCESS_SUCCESS_IRQ:
-        _StdIn.putText(" { Process Done | " + params + " }");
-		_curr_pcb.pid = "-";
-		_curr_pcb.state = "-";
-		_curr_pcb.begin = "-";
-		_curr_pcb.end = "-";
-		
+    case PROCESS_SUCCESS_IRQ: // params: pid
+        _StdIn.putText(" { Process Done | PID: " + params + " }");
         _StdIn.advanceLine();
 		
-		_ready_queue.shift();
-		document.getElementById("pid" + _ready_queue.length).innerHTML = "-";
-		document.getElementById("state" + _ready_queue.length).innerHTML = "-";
-		document.getElementById("begin" + _ready_queue.length).innerHTML = "-";
-		document.getElementById("end" + _ready_queue.length).innerHTML = "-";
+		krnKillProcess(params);
 		
-		// Set the current pcb and the context to the front of the queue
-		if(_ready_queue.length !== 0) {
-			_curr_pcb = _ready_queue[0];
-			_KernelInterruptQueue.enqueue(new Interrupt(CONTEXT_SWITCH_IRQ, _curr_pcb));
-		}
         break;
     case PROCESS_FAILURE_IRQ:
         _StdIn.putText(" { Process Fail | " + params + " }");
@@ -202,8 +225,17 @@ function krnInterruptHandler(irq, params) // This is the Interrupt Handler Routi
     case INVALID_BOUNDARY_IRQ:
         hostLog("Process is trying to reach out of bounds. ")
         break;
-	case CONTEXT_SWITCH_IRQ:
+	case CONTEXT_SWITCH_IRQ: // PARAMS: PCB
+		console.log
 		_CPU.switch_context(params);
+		
+		if(_ready_queue.length > 0) {
+			// Rotates the queue so that it reads properly before the interrupt occurs
+			while(_curr_pcb.pid !== _ready_queue[0].pid) {
+				console.log(_curr_pcb.pid, _ready_queue[0].pid);
+				_ready_queue.push(_ready_queue.shift());
+			}
+		}
 		break;
     default:
         krnTrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");
