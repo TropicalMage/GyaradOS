@@ -162,64 +162,71 @@ function krnDisableInterrupts() {
     // Put more here.
 }
 
-function krnInterruptHandler(irq, params) // This is the Interrupt Handler Routine.  Pages 8 and 560.
-{
-    // Trace our entrance here so we can compute Interrupt Latency by analyzing the log file later on.  Page 766.
-    krnTrace("Handling IRQ~" + irq);
+function krnInterruptHandler(irq, params) {
+    krnTrace("Handling IRQ ~ " + irq);
 
-    // Invoke the requested Interrupt Service Routine via Switch/Case rather than an Interrupt Vector.
-    // TODO: Consider using an Interrupt Vector in the future.
-    // Note: There is no need to "dismiss" or acknowledge the interrupts in our design here.  
-    //       Maybe the hardware simulation will grow to support/require that in the future.
     switch (irq) {
-    case TIMER_IRQ:
-        krnTimerISR(); // Kernel built-in routine for timers (not the clock).
-        break;
-    case KEYBOARD_IRQ:
-        krnKeyboardDriver.isr(params); // Kernel mode device driver
-//        if (_StdIn.active) { // Prevents keyboard interrupts from occurring during execution
-            _StdIn.handleInput();
-//        }
-        break;
-    case OS_IRQ:
-        krnOSTrapError("You done goofed: " + params);
-        break;
-    case INVALID_KEY_IRQ:
-        hostLog("Invalid Key")
-        break;
-    case PROCESS_SUCCESS_IRQ: // params: pid
-        _StdIn.putText(" { Process Done | PID: " + params + " }");
-        _StdIn.advanceLine();
-		
-		krnKillProcess(params);
-		
-        break;
-    case PROCESS_FAILURE_IRQ:
-        _StdIn.putText(" { Process Fail | " + params + " }");
-        _StdIn.advanceLine();
-        break;
-    case PARTITIONS_FULL_IRQ:
-        _StdIn.putText(" { Load Fail | Partition Size Full }");
-        _StdIn.advanceLine();
-        break;
-    case INVALID_BOUNDARY_IRQ:
-        hostLog("Process is trying to reach out of bounds. ")
-        break;
-	case CONTEXT_SWITCH_IRQ: // PARAMS: PCB
-		console.log
-		_CPU.switch_context(params);
-		
-		if(_ready_queue.length > 0) {
-			// Rotates the queue so that it reads properly before the interrupt occurs
-			while(_curr_pcb.pid !== _ready_queue[0].pid) {
-				console.log(_curr_pcb.pid, _ready_queue[0].pid);
-				_ready_queue.push(_ready_queue.shift());
+		case TIMER_IRQ:
+			krnTimerISR(); // Kernel built-in routine for timers (not the clock).
+			break;
+			
+		case KEYBOARD_IRQ:
+			krnKeyboardDriver.isr(params); // Kernel mode device driver
+	//        if (_StdIn.active) { // Prevents keyboard interrupts from occurring during execution
+				_StdIn.handleInput();
+	//        }
+			break;
+			
+		case OS_IRQ:
+			krnOSTrapError("You done goofed: " + params);
+			break;
+			
+		case INVALID_KEY_IRQ:
+			hostLog("Invalid Key")
+			break;
+			
+		case PROCESS_SUCCESS_IRQ: // params: pid
+			_StdIn.putText(" { Process Done | PID: " + params + " }");
+			_StdIn.advanceLine();
+			
+			krnKillProcess(params);
+			
+			break;
+			
+		case PROCESS_FAILURE_IRQ:
+			_StdIn.putText(" { Process Fail | " + params + " }");
+			_StdIn.advanceLine();
+			break;
+			
+		case PARTITIONS_FULL_IRQ:
+			_StdIn.putText(" { Load Fail | Partition Size Full }");
+			_StdIn.advanceLine();
+			break;
+			
+		case INVALID_BOUNDARY_IRQ:
+			hostLog("Process is trying to reach out of bounds. ")
+			break;
+			
+		case CONTEXT_SWITCH_IRQ: // PARAMS: PCB
+			_CPU.switch_context(params);
+			
+			if(_ready_queue.length > 0) {
+				// Rotates the queue so that it reads properly before the interrupt occurs
+				while(_curr_pcb.pid !== _ready_queue[0].pid) {
+					console.log(_curr_pcb.pid, _ready_queue[0].pid);
+					_ready_queue.push(_ready_queue.shift());
+				}
 			}
-		}
-		break;
-    default:
-        krnTrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");
-    }
+			break;
+			
+		case CONSOLE_DISPLAY_IRQ: // PARAMS: String Text
+			_StdIn.putText(" { " + params + " }");
+			_StdIn.advanceLine();
+			break;
+			
+		default:
+			krnTrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");
+	}
 }
 
 function krnTimerISR() // The built-in TIMER (not clock) Interrupt Service Routine (as opposed to an ISR coming from a device driver).

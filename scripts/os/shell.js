@@ -575,60 +575,79 @@ function shellKill(args) {
 
 /**************** FILE SYSTEM COMMANDS ****************/
 function shellListFiles(args) {
-	krnListDirectories();
+	var text = krnListDirectories();
+	return _StdIn.putText(" { " + text + " }");
 }
 
 function shellCreateFile(args) {
-	if (args.length === 0) {
-		return _StdIn.putText("Fail: Provide a name");
-	}
-	if (args.length > 1) {
-		return _StdIn.putText("Fail: One-Worded names only");
-	} 
+	var text = "";
 	if (args[0].length > 60) {
-		return _StdIn.putText("Fail: Filename too long");
+		text = "Fail: Filename too long"
+		return _StdIn.putText(" { " + text + " }");
 	} 
-	krnCreateFile(args);
+	if (args.length === 0) {
+		text = "Fail: Provide a name"
+		return _StdIn.putText(" { " + text + " }");
+	} else if (args.length > 1) {
+		text = "Fail: Names can only have 1 word"
+		return _StdIn.putText(" { " + text + " }");
+	}
+	text = krnCreateFile(args);
+	return _StdIn.putText(" { " + text + " }");
 }
 
 function shellReadFile(args) {
-	if (args.length === 0) {
-		return _StdIn.putText("Fail: Provide a name");
-	}
-	if (args.length > 1) {
-		return _StdIn.putText("Fail: One-Worded names only");
-	} 
+	var text = "";
 	if (args[0].length > 60) {
-		return _StdIn.putText("Fail: Filename too long");
+		text = "Fail: Filename too long"
+		return _StdIn.putText(" { " + text + " }");
 	} 
-	krnReadFile(args.toString());
+	if (args.length === 0) {
+		text = "Fail: Provide a name"
+		return _StdIn.putText(" { " + text + " }");
+	} else if (args.length > 1) {
+		text = "Fail: Names can only have 1 word"
+		return _StdIn.putText(" { " + text + " }");
+	}
+	text = krnReadFile(args);
+	return _StdIn.putText(" { " + text + " }");
 }
 
 function shellWriteFile(args) {
+	var text = "";
 	if (args.length === 0) {
-		return _StdIn.putText("Fail: Provide a name and data");
+		text = "Fail: Provide a name and data"
+		return _StdIn.putText(" { " + text + " }");
 	}
 	
 	var filename = args[0]
 	var data = args.slice(1).toString();
-	krnWriteFile(filename, data);
+	
+	text = krnWriteFile(filename, data);
+	return _StdIn.putText(" { " + text + " }");
 }
 
 function shellDeleteFile(args) {
+	var text = "";
 	if (args.length === 0) {
-		return _StdIn.putText("Fail: Provide a name");
+		text = "Fail: Provide a name";
+		return _StdIn.putText(" { " + text + " }");
 	}
 	if (args.length > 1) {
-		return _StdIn.putText("Fail: One-Worded names only");
+		text = "Fail: One-Worded names only";
+		return _StdIn.putText(" { " + text + " }");
 	} 
 	if (args[0].length > 60) {
-		return _StdIn.putText("Fail: Filename too long");
+		text = "Fail: Filename too long";
+		return _StdIn.putText(" { " + text + " }");
 	}
-	krnDeleteFile(args.toString());
+	text = krnDeleteFile(args.toString());
+	return _StdIn.putText(" { " + text + " }");
 }
 
 function shellFormat(args) {
-	krnFormatFileSystem();
+	text = krnFormatFileSystem();
+	return _StdIn.putText(" { " + text + " }");
 }
 
 /**************** SCHEDULE COMMANDS ****************/

@@ -10,7 +10,7 @@
 
 // Global CONSTANTS
 var APP_NAME = "GyaradOS";
-var APP_VERSION = "0.33";
+var APP_VERSION = "0.34";
 
 var CPU_CLOCK_INTERVAL = 10; // ms
 
@@ -24,6 +24,7 @@ var PROCESS_FAILURE_IRQ = 5;
 var PARTITIONS_FULL_IRQ = 6;
 var INVALID_BOUNDARY_IRQ = 7;
 var CONTEXT_SWITCH_IRQ = 8;
+var CONSOLE_DISPLAY_IRQ = 9;
 
 // Global Components
 var _CPU = null;

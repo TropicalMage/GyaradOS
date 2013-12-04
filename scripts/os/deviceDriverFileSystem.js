@@ -30,9 +30,10 @@ function krnListDirectories() {
 	}
 	files = files.slice(0, files.length - 2);
 	if (files.length === 0) {
-		// TODO: IRQ "NO FILES EXIST"
+		var text = "No files exist";
+		return text;
 	} else {
-		// TODO: IRQ files
+		return files
 	}
 }
 
@@ -42,9 +43,12 @@ function krnCreateFile(filename) {
 		
 		tsb.set_next_block(getFreeBlock().key);
 		tsb.set_data(filename);
-		// TODO: IRQ "FILE filename IS MADE"
+		
+		var text = "File '" + filename + "' created";
+		return text
 	} else {
-		// TODO: IRQ "FILE filename IS IN USE"
+		var text = "File '" + filename + "' is already created";
+		return text
 	}
 }
 
@@ -61,12 +65,12 @@ function krnReadFile(filename) {
 			}
 			return datas;
 		} else {
-			// TODO: IRQ "FILE filename IS EMPTY"
-			return "";
+			var text = "File '" + filename + "' is empty";
+			return text;
 		}
 	} else {
-		// TODO: IRQ "CAN'T LOCATE FILE filename"
-		return "";
+		var text = "File '" + filename + "' not found";
+		return text;
 	}
 }
 
@@ -97,11 +101,11 @@ function krnWriteFile(filename, data) {
 				curr_tsb = next_block;
 			}
 		}
-		// TODO: IRQ "FILE filename HAS BEEN OVERWRITTEN"
-		return true;
+		var text = "File '" + filename + "' overwritten";
+		return text;
 	} else {
-		// TODO: IRQ "CAN'T LOCATE FILE filename"
-		return "";
+		var text = "File '" + filename + "' not found";
+		return text;
 	}
 }
 
@@ -115,7 +119,6 @@ function krnBootUpFileSystem() {
 			}
 		}
 	}
-	// TODO: IRQ "FILE SYSTEM FORMATTED"
 	return null;
 }
 
@@ -129,9 +132,11 @@ function krnDeleteFile(filename) {
 			curr_tsb = new TSB(curr_tsb.get_next_block());
 			next_tsb.clear();
 		}
-		// TODO: IRQ "FILE filename DELETED"
+		var text = "File '" + filename + "' deleted";
+		return text;
 	} else {
-		// TODO: IRQ "FILE filename NOT FOUND"
+		var text = "File '" + filename + "' not found";
+		return text;
 	}
 }
 
@@ -144,8 +149,8 @@ function krnFormatFileSystem() {
 			krnDeleteFile(new TSB(key).get_data());
 		}
 	}
-	// TODO: IRQ "FILE SYSTEM FORMATTED"
-	return null;
+	var text = "File System Formatted";
+	return text;
 }
 
 /********************** HELPER FUNCTIONS **********************/
