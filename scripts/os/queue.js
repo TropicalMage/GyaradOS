@@ -7,8 +7,7 @@
    
    ------------ */
    
-function Queue()
-{
+function Queue() {
     // Properties
     this.q = new Array();
 

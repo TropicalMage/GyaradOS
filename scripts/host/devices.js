@@ -17,15 +17,16 @@
 
 var _hardwareClockID = -1;
 
-//
-// Hardware/Host Clock Pulse
-//
+// Every Clock Pulse
 function hostClockPulse() {
     // Increment the hardware (host) clock.
     _OSclock++;
+	
     // Call the kernel clock pulse event handler.
     krnOnCPUClockPulse();
-    var html = "<table><tr>";
+	
+	// Refresh the Memory Table
+    var html = "<table><caption><h4>Memory</h4></caption><tr>";
     for (var i = 1; i <= _memory.length; i++) {
         html += "<td>" + _memory[i - 1] + "</td>";
         if (i % 8 === 0) {
@@ -33,12 +34,48 @@ function hostClockPulse() {
         }
     }
     html += "</tr></table>";
-    document.getElementById("memory").innerHTML = html;
+    document.getElementById("dataDivMemory").innerHTML = html;
+	
+	// Refresh File System
+	html = "";
+	html += "<table><caption><h4>File System</h4></caption>";
+	for (var track = 0; track < 4; track++) {
+		for (var sector = 0; sector < 8; sector++) {
+			for (var block = 0; block < 8; block++) {
+				html += "<tr>";
+				html += "<td>" + track + "" + sector + "" + block + "</td>";
+				html += "<td>" + new TSB(track + "" + sector + "" + block).to_string() + "</td>";
+				html += "</tr>";
+			}
+		}
+	}
+	html += "</table>";
+	document.getElementById("dataDivFileSystem").innerHTML = html;
+	
+	// Refresh The CPU Status
     document.getElementById("programCounter").innerHTML = _CPU.PC;
     document.getElementById("accumulator").innerHTML = _CPU.Acc;
     document.getElementById("Xreg").innerHTML = _CPU.Xreg;
     document.getElementById("Yreg").innerHTML = _CPU.Yreg;
     document.getElementById("ZFlag").innerHTML = _CPU.Zflag;
+	
+	// Update the display on the Ready Table
+	// 		Ready processes on top
+	for(var i = 0; i < _ready_queue.length; i++) {
+		document.getElementById("pid" + i).innerHTML = _ready_queue[i].pid;
+		document.getElementById("state" + i).innerHTML = _ready_queue[i].state;
+		document.getElementById("begin" + i).innerHTML = _ready_queue[i].begin;
+		document.getElementById("end" + i).innerHTML = _ready_queue[i].end;
+		document.getElementById("pc" + i).innerHTML = _ready_queue[i].PC;
+	}
+	// 		Dashes if you have no remaining processes
+	for(var i = _ready_queue.length; i < 3; i++) {
+		document.getElementById("pid" + i).innerHTML = "-";
+		document.getElementById("state" + i).innerHTML = "-";
+		document.getElementById("begin" + i).innerHTML = "-";
+		document.getElementById("end" + i).innerHTML = "-";
+		document.getElementById("pc" + i).innerHTML = "-";
+	}
 }
 
 

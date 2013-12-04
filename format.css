@@ -7,65 +7,79 @@ body {
     font-size: 12pt;
     font-weight: normal;
     font-style: normal;
-    color:#FFFFFF;
+    color: #FFFFFF;
 }
 
-#display {
-    background-color:#000000;
-    border: 2px solid blue;
-    cursor: default;
+table {
+    border-collapse: collapse;
+    border: 2px solid white;
+	padding: 0 5px;
+}
+
+td {
+    width: 38px;
 }
 
 .normal_button {
     width: 100px;
-}
-
-#memory {
-    float:left;
-    height: 400px;
-    width: 250px;
-    overflow: auto;
-    background-color: #000000;
-    padding: 0 5px;
-    margin: 5px 10px;
-}
-
-#input {
-    float: left;
-}
-
-#taLog {
-    width: 360px;
-    height: 450px;
-}
-
-td {
-    text-align: center;
-    width: 38px;
-}
-table {
-    border-collapse:collapse;
+	margin: 4px;
 }
 
 #toptable table, #toptable th, #toptable td {
-    border: 0;
     text-align: center;
     padding: 0 230px;
 }
 
-#memory table, #memory th, #memory td {
-    border: 1px solid white;
+#display {
+    background-color: #000000;
+    cursor: default;
 }
 
-#pcdata table, #pcdata th, #pcdata td {
-    border: 1px solid white;
-}
-
-#readytable table, #readytable th, #readytable td {
-    border: 1px solid white;
-	padding: 0 5px;
-}
-
-#log {
+#divUserProgramInput {
     float: left;
+}
+
+#dataDiv {
+    float:left;
+    background-color: #555555;
+    padding: 2px 2px;
+}
+
+#dataDivMemory {
+    float: left;
+    height: 500px;
+    width: 250px;
+    overflow: auto;
+    background-color: #000000;
+    margin: 2px 2px;
+	font-size: 80%;
+    text-align: center;
+}
+
+#dataDivFileSystem {
+    float: left;
+    height: 500px;
+    width: 554px;
+    overflow: auto;
+    background-color: #000000;
+    margin: 2px 2px;
+	font-size: 80%;
+}
+
+#dataDivPCData {
+    float: down;
+    margin: 2px 2px;
+    text-align: center;
+}
+
+#dataDivReadyQueue {
+    float: left;
+    margin: 2px 2px;
+    text-align: center;
+}
+
+#divLog {
+    float: left;
+    width: 360px;
+    height: 450px;
 }

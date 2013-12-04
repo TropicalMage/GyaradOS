@@ -30,8 +30,14 @@ function krnBootstrap() {
     // Load the Keyboard Device Driver
     krnTrace("Loading the keyboard device driver.");
     krnKeyboardDriver = new DeviceDriverKeyboard(); // Construct it.  TODO: Should that have a _global-style name?
-    krnKeyboardDriver.driverEntry(); // Call the driverEntry() initialization routine.
+    krnKeyboardDriver.driverEntry(); // Call the driverEntry() initialization routine made in the constructor.
     krnTrace(krnKeyboardDriver.status);
+	
+    krnFileSystemDriver = new DeviceDriverFileSystem();
+    krnFileSystemDriver.driverEntry(); // Call the driverEntry() initialization routine made in the constructor.
+    krnTrace(krnFileSystemDriver.status);
+	
+	krnBootUpFileSystem();
 
     // Enable the OS Interrupts.  (Not the CPU clock interrupt, as that is done in the hardware sim.)
     krnTrace("Enabling the interrupts.");
@@ -75,24 +81,6 @@ function krnOnCPUClockPulse() {
     else { // If there are no interrupts and there is nothing being executed then just be idle.
         krnTrace("Idle");
     }
-	
-	// Update the display on the Ready Table
-	// 		Ready processes on top
-	for(var i = 0; i < _ready_queue.length; i++) {
-		document.getElementById("pid" + i).innerHTML = _ready_queue[i].pid;
-		document.getElementById("state" + i).innerHTML = _ready_queue[i].state;
-		document.getElementById("begin" + i).innerHTML = _ready_queue[i].begin;
-		document.getElementById("end" + i).innerHTML = _ready_queue[i].end;
-		document.getElementById("pc" + i).innerHTML = _ready_queue[i].PC;
-	}
-	// 		Dashes if you have no remaining processes
-	for(var i = _ready_queue.length; i < 3; i++) {
-		document.getElementById("pid" + i).innerHTML = "-";
-		document.getElementById("state" + i).innerHTML = "-";
-		document.getElementById("begin" + i).innerHTML = "-";
-		document.getElementById("end" + i).innerHTML = "-";
-		document.getElementById("pc" + i).innerHTML = "-";
-	}
 }
 
 function krnCreateProcess(hex_codes) {
@@ -119,35 +107,27 @@ function krnCreateProcess(hex_codes) {
 }
 
 function krnKillProcess(pid) {
-	var intRegex = /^\d+$/;
-	if(intRegex.test(pid)) { // It's an integer
-		pid = parseInt(pid);
+	// Need to find the index of the PID we need to kill
+	var index = -1;
+	for(var i = 0; i < _ready_queue.length; i++) {
+		if(_ready_queue[i].pid === pid) {index = i;}
+	}
+	if(index != -1) {
+		// Now we have to find the parition with the destroyed PID and clear it. 
+		var partition = _MemoryManager.get_partition_by_PCB(_ready_queue[index]);
+		_MemoryManager.clear_partition(partition);
 		
-		// Need to find the index of the PID we need to kill
-		var index = -1;
-		for(var i = 0; i < _ready_queue.length; i++) {
-			if(_ready_queue[i].pid === pid) {index = i;}
+		// Remove it from the ready queue
+		_ready_queue.splice(index, index + 1);
+		
+		// Set the current pcb and the context to the front of the queue
+		if(index === 0 && _ready_queue.length > 0) {
+			_curr_pcb = _ready_queue[0];
+			_KernelInterruptQueue.enqueue(new Interrupt(CONTEXT_SWITCH_IRQ, _curr_pcb));
 		}
-		if(index != -1) {
-			// Now we have to find the parition with the destroyed PID and clear it. 
-			var partition = _MemoryManager.get_partition_by_PCB(_ready_queue[index]);
-			_MemoryManager.clear_partition(partition);
-			
-			// Remove it from the ready queue
-			_ready_queue.splice(index, index + 1);
-			
-			// Set the current pcb and the context to the front of the queue
-			if(index === 0 && _ready_queue.length > 0) {
-				_curr_pcb = _ready_queue[0];
-				_KernelInterruptQueue.enqueue(new Interrupt(CONTEXT_SWITCH_IRQ, _curr_pcb));
-			}
-			
-			_StdIn.advanceLine();
-		} else {
-			return _StdIn.putText("Fail: Can't find given pid");
-		}
+		_StdIn.advanceLine();
 	} else {
-		return _StdIn.putText("Fail: Please input a pid");
+		return _StdIn.putText("Fail: Can't find given pid");
 	}
 }
 

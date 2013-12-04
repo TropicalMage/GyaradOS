@@ -1,15 +1,7 @@
-/* ----------------------------------
-   DeviceDriverKeyboard.js
-   
-   Requires deviceDriver.js
-   
-   The Kernel Keyboard Device Driver.
-   ---------------------------------- */
 
-DeviceDriverKeyboard.prototype = new DeviceDriver; // "Inherit" from prototype DeviceDriver in deviceDriver.js.
+DeviceDriverKeyboard.prototype = new DeviceDriver;
 
-function DeviceDriverKeyboard() // Add or override specific attributes and method pointers.
-{
+function DeviceDriverKeyboard() {
     // "subclass"-specific attributes.
     // this.buffer = "";    // TODO: Do we need this?
     // Override the base method pointers.

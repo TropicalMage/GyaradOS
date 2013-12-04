@@ -22,116 +22,116 @@ function Shell() {
 function shellInit() {
     var sc = null;
 
-    // ver
-    sc = new ShellCommand();
-    sc.command = "ver";
-    sc.description = "- Displays the current version data.";
-    sc.function = shellVer;
-    this.commandList[this.commandList.length] = sc;
-
     // help
     sc = new ShellCommand();
     sc.command = "help";
-    sc.description = "- This is the help command. Seek help.";
+    sc.description = "- Used";
     sc.
     function = shellHelp;
+    this.commandList[this.commandList.length] = sc;
+	
+    // ver
+    sc = new ShellCommand();
+    sc.command = "ver";
+    sc.description = "- Displays the current version";
+    sc.function = shellVer;
     this.commandList[this.commandList.length] = sc;
 
     // shutdown
     sc = new ShellCommand();
     sc.command = "shutdown";
-    sc.description = "- Shuts down the OS but leaves the hardware simulation running.";
+    sc.description = "- Shuts down the OS";
     sc.function = shellShutdown;
     this.commandList[this.commandList.length] = sc;
 
     // cls
     sc = new ShellCommand();
     sc.command = "cls";
-    sc.description = "- Clears the screen and resets the cursor position.";
+    sc.description = "- Clears the screen";
     sc.function = shellCls;
     this.commandList[this.commandList.length] = sc;
 
     // man <topic>
     sc = new ShellCommand();
     sc.command = "man";
-    sc.description = "<topic> - Displays the MANual page for <topic>.";
+    sc.description = "<topic> - Displays the manual page";
     sc.function = shellMan;
     this.commandList[this.commandList.length] = sc;
 
     // trace <on | off>
     sc = new ShellCommand();
     sc.command = "trace";
-    sc.description = "<on | off> - Turns the OS log on or off.";
+    sc.description = "<on | off> - Toggles log output";
     sc.function = shellTrace;
     this.commandList[this.commandList.length] = sc;
 
     // rot13 <string>
     sc = new ShellCommand();
     sc.command = "rot13";
-    sc.description = "<string> - Does rot13 obfuscation on <string>.";
+    sc.description = "<string> - Does rot13 obfuscation";
     sc.function = shellRot13;
     this.commandList[this.commandList.length] = sc;
 
     // prompt <string>
     sc = new ShellCommand();
     sc.command = "prompt";
-    sc.description = "<string> - Changes the input icon.";
+    sc.description = "<string> - Changes the input icon";
     sc.function = shellPrompt;
     this.commandList[this.commandList.length] = sc;
 
     // date
     sc = new ShellCommand();
     sc.command = "date";
-    sc.description = "- Displays the current date.";
+    sc.description = "- Displays the current date";
     sc.function = shellDisplayDate;
     this.commandList[this.commandList.length] = sc;
 
     // status <string>
     sc = new ShellCommand();
     sc.command = "status";
-    sc.description = "<string> - Sets the status of your OS.";
+    sc.description = "<string> - Sets the status of your OS";
     sc.function = shellSetStatus;
     this.commandList[this.commandList.length] = sc;
     
     // showpid
     sc = new ShellCommand();
     sc.command = "showpid";
-    sc.description = "- Shows all of the active processes.";
+    sc.description = "- Shows all of the active processes";
     sc.function = shellShowRdyPID;
     this.commandList[this.commandList.length] = sc;
 	
     // load
     sc = new ShellCommand();
     sc.command = "load";
-    sc.description = "- Loads data from the User Program Input.";
-    sc.function = shellLoadUPI;
+    sc.description = "- Loads data from the UPI";
+    sc.function = shellLoad;
     this.commandList[this.commandList.length] = sc;
     
-    // run <int>
+    // run <pid>
     sc = new ShellCommand();
     sc.command = "run";
-    sc.description = "<int> - Runs the process of a PID Index";
+    sc.description = "<pid> - Runs the process given";
     sc.function = shellRun;
     this.commandList[this.commandList.length] = sc;
 	
     // runall
     sc = new ShellCommand();
     sc.command = "runall";
-    sc.description = "- Runs all of the programs using RR scheduling.";
+    sc.description = "- Runs all of the programs";
     sc.function = shellRunAll;
     this.commandList[this.commandList.length] = sc;
     
     // kill <pid>
     sc = new ShellCommand();
     sc.command = "kill";
-    sc.description = "<pid> - Stops the PID from running.";
+    sc.description = "<pid> - Removes the pid from residency";
     sc.function = shellKill;
     this.commandList[this.commandList.length] = sc;
 
     // whereami
     sc = new ShellCommand();
     sc.command = "whereami";
-    sc.description = "- Displays your current location.";
+    sc.description = "- Project 1 requirement";
     sc.function = shellShowLocation;
     this.commandList[this.commandList.length] = sc;
     
@@ -145,7 +145,7 @@ function shellInit() {
     // Game
     sc = new ShellCommand();
     sc.command = "game";
-    sc.description = "- Illogical text adventure. 'game help' for instructions.";
+    sc.description = "- Text Adventure! 'game help' for instructions.";
     sc.function = shellGame;
     this.commandList[this.commandList.length] = sc;
 	
@@ -154,6 +154,48 @@ function shellInit() {
     sc.command = "quantum";
     sc.description = "<int> - Changes the quantum of the Round Robin Schedule.";
     sc.function = shellQuantum;
+    this.commandList[this.commandList.length] = sc;
+	
+    // List Files
+    sc = new ShellCommand();
+    sc.command = "ls";
+    sc.description = "- Lists all directories";
+    sc.function = shellListFiles;
+    this.commandList[this.commandList.length] = sc;
+	
+    // Create File <filename>
+    sc = new ShellCommand();
+    sc.command = "create";
+    sc.description = "<filename> - Creates a file.";
+    sc.function = shellCreateFile;
+    this.commandList[this.commandList.length] = sc;
+	
+    // Read File <filename>
+    sc = new ShellCommand();
+    sc.command = "read";
+    sc.description = "<filename> - Reads a files contents.";
+    sc.function = shellReadFile;
+    this.commandList[this.commandList.length] = sc;
+	
+    // Write File <filename> "data"
+    sc = new ShellCommand();
+    sc.command = "write";
+    sc.description = "<filename, data> - Writes data to a file.";
+    sc.function = shellWriteFile;
+    this.commandList[this.commandList.length] = sc;
+	
+    // Delete File <filename>
+    sc = new ShellCommand();
+    sc.command = "delete";
+    sc.description = "<filename> - Delete a file and it's contents.";
+    sc.function = shellDeleteFile;
+    this.commandList[this.commandList.length] = sc;
+	
+    // Format
+    sc = new ShellCommand();
+    sc.command = "format";
+    sc.description = " - Clears all files";
+    sc.function = shellFormat;
     this.commandList[this.commandList.length] = sc;
 
     // processes - list the running processes and their IDs
@@ -265,13 +307,12 @@ function UserCommand() {
     this.args = [];
 }
 
-
-
 /* Shell Command Functions.  Again, not part of Shell() class per se', just called from there. */
 function shellInvalidCommand() {
     _StdIn.putText("Invalid Command. Use 'help' to guide you.");
 }
 
+/**************** GENERAL SHELL COMMANDS ****************/
 function shellVer(args) {
     _StdIn.putText(APP_NAME + " v" + APP_VERSION);
 }
@@ -372,7 +413,79 @@ function shellShowRdyPID(args) {
 	return _StdIn.putText(stringy);
 }
 
-function shellLoadUPI(args) {
+function shellShowLocation(args) {
+    _StdIn.putText("Where aren't you?");
+}
+
+function shellNuclearWar(args) {
+    _KernelInterruptQueue.enqueue(new Interrupt(OS_IRQ, "test"));
+}
+
+function shellGame(args) {
+    if (args.length > 0) {
+        var action = args[0];
+        switch(action) {
+            case "help":
+                _StdIn.putText("Use bolded word for a command. eg: 'game dance'");
+                break;
+            case "look":
+                _StdIn.putText("You see the giant beast, a ROCK, and a STICK.");
+                break;
+            case "sword":
+                _StdIn.putText("You swing your sword at the mighty foe. He seems unfazed.");
+                break;
+            case "jump":
+                _StdIn.putText("You leap two feet into the air. Afterwards, you feel TIRED.");
+                break;
+            case "dance":
+                if(this.game1 && this.game2) {
+                    _StdIn.putText("What's this?! Your sword is glowing. You know SPECIAL.");
+                } else {
+                    _StdIn.putText("The monster can't look away. +2 Charm");
+                }
+                break;
+            case "rock":
+                _StdIn.putText("You now have ROCK. You've learned THROW.");
+                this.game1 = 1;
+                break;
+            case "stick":
+                _StdIn.putText("You now have STICK. You've learned SWING.");
+                this.game2 = 1;
+                break;
+            case "tired": 
+                _StdIn.putText("A nap seems like a good idea... GAME OVER");
+                break;
+            case "throw":
+                _StdIn.putText("The rock hurt the giant beast right in the feelings.");
+                this.game1 = 0;
+                break;
+            case "swing":
+                _StdIn.putText("The stick did less damage than the sword. Who knew!?");
+                this.game2 = 0;
+                break;
+            case "special":
+                _StdIn.putText("You dash forward with your rainbow colored sword. CONTINUE.");
+                break;
+            case "continue":
+                _StdIn.putText("Your sword cleaves the beast in two. You are WINNER!");
+                break;
+            case "winner":
+                _StdIn.putText("SUPER win! Seriously, it's over. There's nothing left. ");
+                break;
+            case "super":
+                _StdIn.putText("    :| srs");
+                break;
+            default:
+                _StdIn.putText("Don't understand. Start: 'game', Help: 'game help'");
+                break;
+        }
+    } else {
+        _StdIn.putText("A beast is before you. Do you LOOK, SWORD, JUMP, or DANCE?");
+    }
+}
+
+/**************** PROGRAM COMMANDS ****************/
+function shellLoad(args) {
     if (args.length === 0) { // No args
         var user_input = document.getElementById("taProgramInput").value;
         
@@ -450,81 +563,75 @@ function shellRunAll(args) {
 	_KernelInterruptQueue.enqueue(new Interrupt(CONTEXT_SWITCH_IRQ, pcb));
 }
 
-function shellShowLocation(args) {
-    _StdIn.putText("Where aren't you?");
+function shellKill(args) {
+	var intRegex = /^\d+$/;
+	if (intRegex.test(pid)) { // It's an integer
+		pid = parseInt(pid);
+		krnKillProcess(pid);
+	} else {
+		return _StdIn.putText("Fail: Please input a pid");
+	}
 }
 
-function shellKill(args) { // ARGS: PID
-	krnKillProcess(args);
+/**************** FILE SYSTEM COMMANDS ****************/
+function shellListFiles(args) {
+	krnListDirectories();
 }
 
-function shellNuclearWar(args) {
-    _KernelInterruptQueue.enqueue(new Interrupt(OS_IRQ, "test"));
+function shellCreateFile(args) {
+	if (args.length === 0) {
+		return _StdIn.putText("Fail: Provide a name");
+	}
+	if (args.length > 1) {
+		return _StdIn.putText("Fail: One-Worded names only");
+	} 
+	if (args[0].length > 60) {
+		return _StdIn.putText("Fail: Filename too long");
+	} 
+	krnCreateFile(args);
 }
 
-function shellGame(args) {
-    if (args.length > 0) {
-        var action = args[0];
-        switch(action) {
-            case "help":
-                _StdIn.putText("Use bolded word for a command. eg: 'game dance'");
-                break;
-            case "look":
-                _StdIn.putText("You see the giant beast, a ROCK, and a STICK.");
-                break;
-            case "sword":
-                _StdIn.putText("You swing your sword at the mighty foe. He seems unfazed.");
-                break;
-            case "jump":
-                _StdIn.putText("You leap two feet into the air. Afterwards, you feel TIRED.");
-                break;
-            case "dance":
-                if(this.game1 && this.game2) {
-                    _StdIn.putText("What's this?! Your sword is glowing. You know SPECIAL.");
-                } else {
-                    _StdIn.putText("The monster can't look away. +2 Charm");
-                }
-                break;
-            case "rock":
-                _StdIn.putText("You now have ROCK. You've learned THROW.");
-                this.game1 = 1;
-                break;
-            case "stick":
-                _StdIn.putText("You now have STICK. You've learned SWING.");
-                this.game2 = 1;
-                break;
-            case "tired": 
-                _StdIn.putText("A nap seems like a good idea... GAME OVER");
-                break;
-            case "throw":
-                _StdIn.putText("The rock hurt the giant beast right in the feelings.");
-                this.game1 = 0;
-                break;
-            case "swing":
-                _StdIn.putText("The stick did less damage than the sword. Who knew!?");
-                this.game2 = 0;
-                break;
-            case "special":
-                _StdIn.putText("You dash forward with your rainbow colored sword. CONTINUE.");
-                break;
-            case "continue":
-                _StdIn.putText("Your sword cleaves the beast in two. You are WINNER!");
-                break;
-            case "winner":
-                _StdIn.putText("SUPER win! Seriously, it's over. There's nothing left. ");
-                break;
-            case "super":
-                _StdIn.putText("    :| srs");
-                break;
-            default:
-                _StdIn.putText("Don't understand. Start: 'game', Help: 'game help'");
-                break;
-        }
-    } else {
-        _StdIn.putText("A beast is before you. Do you LOOK, SWORD, JUMP, or DANCE?");
-    }
+function shellReadFile(args) {
+	if (args.length === 0) {
+		return _StdIn.putText("Fail: Provide a name");
+	}
+	if (args.length > 1) {
+		return _StdIn.putText("Fail: One-Worded names only");
+	} 
+	if (args[0].length > 60) {
+		return _StdIn.putText("Fail: Filename too long");
+	} 
+	krnReadFile(args.toString());
 }
 
+function shellWriteFile(args) {
+	if (args.length === 0) {
+		return _StdIn.putText("Fail: Provide a name and data");
+	}
+	
+	var filename = args[0]
+	var data = args.slice(1).toString();
+	krnWriteFile(filename, data);
+}
+
+function shellDeleteFile(args) {
+	if (args.length === 0) {
+		return _StdIn.putText("Fail: Provide a name");
+	}
+	if (args.length > 1) {
+		return _StdIn.putText("Fail: One-Worded names only");
+	} 
+	if (args[0].length > 60) {
+		return _StdIn.putText("Fail: Filename too long");
+	}
+	krnDeleteFile(args.toString());
+}
+
+function shellFormat(args) {
+	krnFormatFileSystem();
+}
+
+/**************** SCHEDULE COMMANDS ****************/
 function shellQuantum(args) {
 	var intRegex = /^\d+$/;
 	if(intRegex.test(args)) {
@@ -534,6 +641,7 @@ function shellQuantum(args) {
 	}
 }
 
+/**************** MISC ****************/
 function updateClock() {
     var date = new Date();
     var weekday = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];

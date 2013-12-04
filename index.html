@@ -23,12 +23,13 @@
         <script type="text/javascript" src="scripts/os/console.js"></script>
         <script type="text/javascript" src="scripts/os/deviceDriver.js"></script>
         <script type="text/javascript" src="scripts/os/deviceDriverKeyboard.js"></script>
+        <script type="text/javascript" src="scripts/os/deviceDriverFileSystem.js"></script>
         <script type="text/javascript" src="scripts/os/queue.js"></script>
         <script type="text/javascript" src="scripts/os/shell.js"></script>
         <script type="text/javascript" src="scripts/os/kernel.js"></script>
         <!-- Other Routines -->
         <script type="text/javascript" src="scripts/utils.js"></script>
-        <script type="text/javascript" src="http://www.labouseur.com/courses/os/projects/glados.js"></script>
+        <!-- <script type="text/javascript" src="http://www.labouseur.com/courses/os/projects/glados.js"></script> -->
     </head>
     
     <body onload="hostInit();">
@@ -43,88 +44,104 @@
     
     
         <div id="divMain" style="width:100%;">
-            <div id="divButtonBar" style="margin:4px;">
+			<!-- BUTTONS -->
+            <div id="divButtonBar">
                 <input type="button" id="btnStartOS" name="brnStartOS" class="normal_button"
                 value="Start" tabindex="0" onclick="hostBtnStartOS_click(this);">
+				
                 <input type="button" id="btnHaltOS" name="brnHaltOS" class="normal_button"
                 disabled="disabled" value="Halt" tabindex="1" onclick="hostBtnHaltOS_click(this);">
+				
                 <input type="button" id="btnReset" name="brnReset" class="normal_button"
                 disabled="disabled" value="Reset" tabindex="2" onclick="hostBtnReset_click(this);">
             </div>
             
+			<!-- CONSOLE -->
             <div id="divConsole" style="margin:4px; width:500px; height:500px; float:left;">
                 <canvas id="display" width="500px" height="500px" tabindex="3"></canvas>
             </div>
             
-            <div id="divLog" style="margin-left:520px;">
-                <label>Log
-                    <br>
-                    <textarea name="taLog" id="taLog" rows="26" cols="48"></textarea>
-                </label>
-            </div>
-            
-            <div id="divUserProgramInput" style="margin-left:520px;">
-                <label>User Program Input
-                    <br>
+			<!-- User Program Input -->
+            <div id="divUserProgramInput" style="margin-left: -500px; margin-top:510px;">
+                <label>User Program Input <br>
                     <textarea name="taProgramInput" id="taProgramInput" rows="8" cols="48">A9 00 8D 00 00 A9 00 8D 4B 00 A9 00 8D 4B 00 A2 03 EC 4B 00 D0 07 A2 01 EC 00 00 D0 05 A2 00 EC 00 00 D0 26 A0 4C A2 02 FF AC 4B 00 A2 01 FF A9 01 6D 4B 00 8D 4B 00 A2 02 EC 4B 00 D0 05 A0 55 A2 02 FF A2 01 EC 00 00 D0 C5 00 00 63 6F 75 6E 74 69 6E 67 00 68 65 6C 6C 6F 20 77 6F 72 6C 64 00</textarea>
                 </label>
             </div>
             
-            <div id ="memory" style="margin-left:950px; margin-top:-600px;"></div>
-            
-            <table border="1" id="pcdata">
-                <tr>
-                    <th>PC</th>
-                    <th>Acc</th>
-                    <th>XReg</th>
-                    <th>YReg</th>
-                    <th>ZFlag</th>
-                </tr>
-                <tr>
-                    <td id="programCounter">0</td>
-                    <td id ="accumulator">0</td>
-                    <td id ="Xreg">0</td>
-                    <td id ="Yreg">0</td>
-                    <td id ="ZFlag">0</td>
-                </tr>
-            </table>
-			
-            <table border="1" id="readytable">
-                <tr>
-                    <th>PID</th>
-                    <th>State</th>
-                    <th>Begin</th>
-                    <th>End</th>
-                    <th>PC</th>
-                </tr>
-                <tr>
-                    <td id ="pid0">-</td>
-                    <td id ="state0">-</td>
-                    <td id ="begin0">-</td>
-                    <td id ="end0">-</td>
-                    <td id ="pc0">-</td>
-                </tr>
-                <tr>
-                    <td id ="pid1">-</td>
-                    <td id ="state1">-</td>
-                    <td id ="begin1">-</td>
-                    <td id ="end1">-</td>
-                    <td id ="pc1">-</td>
-                </tr>
-                <tr>
-                    <td id ="pid2">-</td>
-                    <td id ="state2">-</td>
-                    <td id ="begin2">-</td>
-                    <td id ="end2">-</td>
-                    <td id ="pc2">-</td>
-                </tr>
-            </table>
-            
+			<!-- Data -->
+			<div id ="dataDiv">
+				<div id ="dataDivMemory">
+					<caption><h4>Memory</h4></caption>
+				</div>
+				
+				
+				<div id ="dataDivFileSystem">
+					<caption><h4>File System</h4></caption>
+				</div>
+				
+				<div id="dataDivPCData">
+					<table>
+						<caption><h4>PC Data</h4></caption>
+						<tr>
+							<th>PC</th>
+							<th>Acc</th>
+							<th>XReg</th>
+							<th>YReg</th>
+							<th>ZFlag</th>
+						</tr>
+						<tr>
+							<td id="programCounter">0</td>
+							<td id ="accumulator">0</td>
+							<td id ="Xreg">0</td>
+							<td id ="Yreg">0</td>
+							<td id ="ZFlag">0</td>
+						</tr>
+					</table>
+				</div>
+				
+				<div id="dataDivReadyQueue">
+					<table border="1" id="readytable">
+						<caption><h4>Ready Queue</h4></caption>
+						<tr>
+							<th>PID</th>
+							<th>State</th>
+							<th>Begin</th>
+							<th>End</th>
+							<th>PC</th>
+						</tr>
+						<tr>
+							<td id ="pid0">-</td>
+							<td id ="state0">-</td>
+							<td id ="begin0">-</td>
+							<td id ="end0">-</td>
+							<td id ="pc0">-</td>
+						</tr>
+						<tr>
+							<td id ="pid1">-</td>
+							<td id ="state1">-</td>
+							<td id ="begin1">-</td>
+							<td id ="end1">-</td>
+							<td id ="pc1">-</td>
+						</tr>
+						<tr>
+							<td id ="pid2">-</td>
+							<td id ="state2">-</td>
+							<td id ="begin2">-</td>
+							<td id ="end2">-</td>
+							<td id ="pc2">-</td>
+						</tr>
+					</table>
+				</div>
+			</div>
+		
+			<!-- Log -->
+			<div id="divLog">
+				<label>Log
+					<br>
+					<textarea name="taLog" id="taLog" rows="26" cols="48"></textarea>
+				</label>
+			</div>
         </div>
-        <!--<p class="footerText" style="clear:both;">-->
-        <!--    <br>Copyright &copy; 2008 - 2013 No Rights Reserved.-->
-        <!--    <br>Reproduction is prohibited without the express written consent of Ted-->
-        <!--    Codd, Stevie Ray Vaughan, and Ian Flamingo.</p>-->
     </body>
 
 </html>
