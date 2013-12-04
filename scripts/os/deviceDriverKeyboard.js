@@ -12,7 +12,7 @@ function DeviceDriverKeyboard() {
 
 function krnKbdDriverEntry() {
     // Initialization routine for this, the kernel-mode Keyboard Device Driver.
-    this.status = "loaded";
+    this.status = "Keyboard successfully loaded.";
     // More?
 }
 
@@ -44,7 +44,7 @@ function krnKbdDispatchKeyPress(params) {
     (keyCode === 187)    ||  // =
     (keyCode === 219)    ||  // [
     (keyCode === 221)    ||  // ]
-    (keyCode === 220)    ||  // \
+    (keyCode === 220)    ||  /* \*/
     (keyCode === 186)    ||  // ;
     (keyCode === 222)    ||  // '
     (keyCode === 188)    ||  // ,
@@ -81,7 +81,7 @@ function krnKbdDispatchKeyPress(params) {
             else if (keyCode === 187) chr = String.fromCharCode(61) // =
             else if (keyCode === 219) chr = String.fromCharCode(91) // [
             else if (keyCode === 221) chr = String.fromCharCode(93) // ]
-            else if (keyCode === 220) chr = String.fromCharCode(92) // \
+            else if (keyCode === 220) chr = String.fromCharCode(92) /* \*/
             else if (keyCode === 186) chr = String.fromCharCode(59) // ;
             else if (keyCode === 222) chr = String.fromCharCode(39) // '
             else if (keyCode === 188) chr = String.fromCharCode(44) // ,

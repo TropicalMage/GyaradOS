@@ -12,7 +12,8 @@ function DeviceDriverFileSystem() {
 
 function krnFileSystemDriverEntry() {
     // Initialization routine for this, the kernel-mode file system Device Driver.
-    this.status = "loaded";
+	krnBootUpFileSystem();
+    this.status = "FS successfully loaded.";
 }
 
 function krnListDirectories() {
@@ -36,7 +37,6 @@ function krnListDirectories() {
 }
 
 function krnCreateFile(filename) {
-	console.log(filename, findDirectory(filename).key); //////////////////////////////////////////////////////////
 	if (findDirectory(filename).key === "000") {
 		var tsb = getFreeDirectory();
 		
@@ -79,9 +79,13 @@ function krnWriteFile(filename, data) {
 		var end = Math.min((i + 1) * 60, data.length);
 		sectioned_data.push(data.slice(i * 60, end));
 	}
-///////////////////////////////////////////////////////////////////////////////////////////////////////GOTTA DELETE THE PREVIOUS DATA FIRST
+	
+	
 	var curr_tsb = findDirectory(filename);
-	if (curr_tsb !== null) {
+	if (curr_tsb.key !== "000") {
+		// Need to remove any chance of getting dead blocks
+		krnClearFile(filename);
+		
 		curr_tsb = new TSB(curr_tsb.get_next_block());
 		for (var i = 0; i < sectioned_data.length; i++) {
 			// Write to the currently pointing tsb
@@ -111,18 +115,23 @@ function krnBootUpFileSystem() {
 			}
 		}
 	}
-	// IRQ: Everything Formatted
+	// TODO: IRQ "FILE SYSTEM FORMATTED"
 	return null;
 }
 
 // Deletes a file and all of its connected sections
 function krnDeleteFile(filename) {
 	var curr_tsb = findDirectory(filename);
-	var next_tsb = curr_tsb;
-	while(curr_tsb.key !== "000") {
-		next_tsb = curr_tsb;
-		curr_tsb = new TSB(curr_tsb.get_next_block());
-		next_tsb.clear();
+	if (curr_tsb.key !== "000") {
+		var next_tsb = curr_tsb;
+		while(curr_tsb.key !== "000") {
+			next_tsb = curr_tsb;
+			curr_tsb = new TSB(curr_tsb.get_next_block());
+			next_tsb.clear();
+		}
+		// TODO: IRQ "FILE filename DELETED"
+	} else {
+		// TODO: IRQ "FILE filename NOT FOUND"
 	}
 }
 
@@ -135,12 +144,14 @@ function krnFormatFileSystem() {
 			krnDeleteFile(new TSB(key).get_data());
 		}
 	}
-	// IRQ: Everything Formatted
+	// TODO: IRQ "FILE SYSTEM FORMATTED"
 	return null;
 }
 
-// HELPER FUNCTIONS
+/********************** HELPER FUNCTIONS **********************/
 function findDirectory(filename) {
+	filename = filename.toString()
+	
 	var track = 0;
 	for (var sector = 0; sector < 8; sector++) {
 		for (var block = 0; block < 8; block++) {
@@ -151,7 +162,6 @@ function findDirectory(filename) {
 			}
 		}
 	}
-	console.log("Cant Find");
 	return new TSB("000");
 }
 
@@ -188,6 +198,20 @@ function getFreeBlock() {
 		}
 	}
 	return null;
+}
+
+// Clears a file while retaining it's memory addresses
+function krnClearFile(filename) {
+	var dir = findDirectory(filename);
+	var next_block = dir.get_next_block();
+	var next_tsb = new TSB(next_block);
+	
+	krnDeleteFile(filename);
+	
+	dir.set_used(1);
+	next_tsb.set_used(1);
+	dir.set_next_block(next_block);
+	dir.set_data(filename);
 }
 
 function TSB(key) {

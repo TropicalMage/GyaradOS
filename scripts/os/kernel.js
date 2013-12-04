@@ -28,16 +28,16 @@ function krnBootstrap() {
     _StdOut = _Console;
 
     // Load the Keyboard Device Driver
-    krnTrace("Loading the keyboard device driver.");
+    krnTrace("Loading the Keyboard Driver...");
     krnKeyboardDriver = new DeviceDriverKeyboard(); // Construct it.  TODO: Should that have a _global-style name?
     krnKeyboardDriver.driverEntry(); // Call the driverEntry() initialization routine made in the constructor.
     krnTrace(krnKeyboardDriver.status);
 	
+    krnTrace("Loading the FS Driver...");
     krnFileSystemDriver = new DeviceDriverFileSystem();
     krnFileSystemDriver.driverEntry(); // Call the driverEntry() initialization routine made in the constructor.
     krnTrace(krnFileSystemDriver.status);
 	
-	krnBootUpFileSystem();
 
     // Enable the OS Interrupts.  (Not the CPU clock interrupt, as that is done in the hardware sim.)
     krnTrace("Enabling the interrupts.");
