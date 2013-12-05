@@ -61,16 +61,18 @@ function hostClockPulse() {
 	
 	// Update the display on the Ready Table
 	// 		Ready processes on top
-	for(var i = 0; i < _ready_queue.length; i++) {
+	for (var i = 0; i < _ready_queue.length && i < 3; i++) {
 		document.getElementById("pid" + i).innerHTML = _ready_queue[i].pid;
 		document.getElementById("state" + i).innerHTML = _ready_queue[i].state;
 		document.getElementById("pc" + i).innerHTML = _ready_queue[i].PC;
+		document.getElementById("pri" + i).innerHTML = _ready_queue[i].priority;
 	}
 	// 		Dashes if you have no remaining processes
-	for(var i = _ready_queue.length; i < 3; i++) {
+	for (var i = _ready_queue.length; i < 3; i++) {
 		document.getElementById("pid" + i).innerHTML = "-";
 		document.getElementById("state" + i).innerHTML = "-";
 		document.getElementById("pc" + i).innerHTML = "-";
+		document.getElementById("pri" + i).innerHTML = "-";
 	}
 }
 

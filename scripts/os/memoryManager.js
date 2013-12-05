@@ -72,8 +72,9 @@ function MemoryManager() {
 		var data = "";
 		
 		// Grab the data, 
-		for (var i = 0; i < this.partitionSize; i++) {
-			data += this.get_hex_pair(pcb.partition, i) + " ";
+		for (var i = 0; i < _PARTITION_SIZE; i++) {
+			var hex_pair = this.get_hex_pair(pcb.partition, i)
+			data += hex_pair + " ";
 		}
 		
 		// clear the partition it was at and remove where it pointed to, 
@@ -81,19 +82,19 @@ function MemoryManager() {
 		pcb.partition = null;
 
 		// and write the codes into the file
-			krnFileSystemDriver.createFile("@process" + pcb.pid);
-		krnFileSystemDriver.writeToFile("@process" + pcb.pid, data);
+		krnCreateFile("@process" + pcb.pid);
+		krnWriteFile("@process" + pcb.pid, data);
 	};
 	
 	// To the memory
 	this.roll_in = function(pcb, partition) {
-		var hex_codes = krnFileSystemDriver.krnReadFile("@process" + pcb.pid).split(" ");
-		krnFileSystemDriver.deleteFile("@process" + pcb.pid);
+		var hex_codes = krnReadFile("@process" + pcb.pid).split(" ");
+		krnDeleteFile("@process" + pcb.pid);
 
 		// put codes in memory
 		var currentAddress = 0;
-		codes.forEach(function(code) {
-			_MemoryManager.save_hex_pair(partition, currentAddress, code);
+		hex_codes.forEach(function(hex_pair) {
+			_MemoryManager.save_hex_pair(partition, currentAddress, hex_pair);
 			currentAddress++;
 		});
 		partition.available = false;

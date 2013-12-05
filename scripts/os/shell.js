@@ -103,7 +103,7 @@ function shellInit() {
     // load
     sc = new ShellCommand();
     sc.command = "load";
-    sc.description = "- Loads data from the UPI";
+    sc.description = "<priority?> - Loads data from the UPI";
     sc.function = shellLoad;
     this.commandList[this.commandList.length] = sc;
     
@@ -197,12 +197,22 @@ function shellInit() {
     sc.description = " - Clears all files";
     sc.function = shellFormat;
     this.commandList[this.commandList.length] = sc;
-
-    // processes - list the running processes and their IDs
-    // kill <id> - kills the specified process id.
-
-    //
-    // Display the initial prompt.
+	
+    // Get Schedule
+    sc = new ShellCommand();
+    sc.command = "getschedule";
+    sc.description = "- returns current schedule";
+    sc.function = shellGetSchedule;
+    this.commandList[this.commandList.length] = sc;
+	
+    // Set Schedule
+    sc = new ShellCommand();
+    sc.command = "setschedule";
+    sc.description = "< rr | fcfs | priority >";
+    sc.function = shellSetSchedule;
+    this.commandList[this.commandList.length] = sc;
+	
+	
     this.putPrompt();
     
     window.setInterval(function(){updateClock()}, 500);
@@ -486,7 +496,19 @@ function shellGame(args) {
 
 /**************** PROGRAM COMMANDS ****************/
 function shellLoad(args) {
-    if (args.length === 0) { // No args
+    if (args.length === 0 || args.length === 1) {
+		var priority = 0;
+		
+		if (args.length === 1) {
+			var intRegex = /^\d+$/;
+			if(intRegex.test(args[0])) {
+				var priority = args[0];
+			} else {
+				var text = "Fail: Priority requires an integer"
+				return _StdIn.putText(" { " + text + " }");
+			}
+		}
+		
         var user_input = document.getElementById("taProgramInput").value;
         
         if (user_input !== "") { // There is something in the UPI
@@ -497,26 +519,31 @@ function shellLoad(args) {
 			hex_pairs.forEach(function(hex_set) {
 				if(hex_set.length !== 2) {
 					invalid = true;
-					return _StdIn.putText("Invalid: Two hex chars only.");
+					var text = "Fail: Two hex chars only."
+					return _StdIn.putText(" { " + text + " }");
 				}
 				if (!hex_set[0].match("[0-9a-fA-F]")) {
 					invalid = true;
-					return _StdIn.putText("Invalid: " + hex_set[0] + " needs to be in hex. ");
+					var text = "Fail: " + hex_set[0] + " needs to be in hex. "
+					return _StdIn.putText(" { " + text + " }");
 				}
 				if (!hex_set[1].match("[0-9a-fA-F]")) {
 					invalid = true;
-					return _StdIn.putText("Invalid: " + hex_set[1] + " needs to be in hex. ");
+					var text = "Fail: " + hex_set[1] + " needs to be in hex. "
+					return _StdIn.putText(" { " + text + " }");
 				}
 			});
 			
 			if (invalid) {return;}
 		
-			krnCreateProcess(hex_pairs);
+			krnCreateProcess(hex_pairs, priority);
         } else {
-            return _StdIn.putText("Invalid: Try putting something in the UPI.");
+			var text = "Fail: Try putting something in the UPI."
+			return _StdIn.putText(" { " + text + " }");
         }
     } else {
-        return _StdIn.putText("Invalid: Requires no arguments.");
+		var text = "Fail: Requires 0 or 1 arguments"
+		return _StdIn.putText(" { " + text + " }");
     }
 }
 
@@ -526,10 +553,10 @@ function shellRun(args) {
             var pcb = _residency[args[0]];
 			
 			_ready_queue.push(pcb);
-            _curr_pcb = pcb;
 			
-			_KernelInterruptQueue.enqueue(new Interrupt(CONTEXT_SWITCH_IRQ, pcb));
+            _curr_pcb = _ready_queue[0];
 			_curr_pcb.state = "Running";
+			_KernelInterruptQueue.enqueue(new Interrupt(CONTEXT_SWITCH_IRQ, pcb));
         } else {
             return _StdIn.putText("Fail: Can't find the PCB");
         }
@@ -644,10 +671,44 @@ function shellFormat(args) {
 }
 
 /**************** SCHEDULE COMMANDS ****************/
+function shellGetSchedule(args) {
+	return _StdIn.putText(" { " + _SCHEDULE + " }");
+}
+
+function shellSetSchedule(args) {
+	var text;
+	if (args.length !== 1) {
+		text = "Fail: One argument only";
+		return _StdIn.putText(" { " + text + " }");
+	}
+	
+	if (args[0] === "rr") {
+		_SCHEDULE = "rr";
+		_quantum = _true_quantum;
+		text = "Schedule is now " + _SCHEDULE;
+		return _StdIn.putText(" { " + text + " }");
+	}
+	if (args[0] === "fcfs") {
+		_SCHEDULE = "fcfs";
+		_quantum = 999999999999;
+		text = "Schedule is now " + _SCHEDULE;
+		return _StdIn.putText(" { " + text + " }");
+	}
+	if (args[0] === "priority") {
+		_SCHEDULE = "priority";
+		text = "Schedule is now " + _SCHEDULE;
+		return _StdIn.putText(" { " + text + " }");
+	}
+	
+	text = "Fail: Provide 'rr', 'fcfs', or 'priority'";
+	return _StdIn.putText(" { " + text + " }");
+}
+
 function shellQuantum(args) {
 	var intRegex = /^\d+$/;
 	if(intRegex.test(args)) {
 		_quantum = args;
+		_true_quantum = args;
 	} else {
 		_StdIn.putText("Fail: Please input an integer");
 	}

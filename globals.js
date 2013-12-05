@@ -10,7 +10,7 @@
 
 // Global CONSTANTS
 var APP_NAME = "GyaradOS";
-var APP_VERSION = "0.36";
+var APP_VERSION = "0.37";
 
 var CPU_CLOCK_INTERVAL = 10; // ms
 
@@ -32,7 +32,10 @@ var _memory = [];
 var _MemoryManager;
 var _Console = null;
 var _OsShell = null;
+
+var _SCHEDULE = "rr";
 var _quantum = 6;
+var _true_quantum = 6;
 var _quantum_counter = 0;
 
 // Standard input and output linked with _Console

@@ -83,11 +83,11 @@ function krnOnCPUClockPulse() {
     }
 }
 
-function krnCreateProcess(hex_codes) {
+function krnCreateProcess(hex_codes, priority) {
 	if (hex_codes.length < _PARTITION_SIZE) { 
 		var partition = _MemoryManager.get_empty_partition();
 		if (partition !== null) {
-			var pcb = new PCB(getNewPID(), partition);
+			var pcb = new PCB(getNewPID(), partition, priority);
 			
 			_curr_pcb = pcb;
 			var curr_offset = 0;
@@ -98,7 +98,7 @@ function krnCreateProcess(hex_codes) {
 			});
 		
 			_residency[pcb.pid] = pcb;
-			krnInterruptHandler(CONSOLE_DISPLAY_IRQ, "Process created in Memory. PID: " + pcb.pid);
+			krnInterruptHandler(CONSOLE_DISPLAY_IRQ, "Process created in Memory. PID: " + pcb.pid + " with priority " + pcb.priority);
 		} else { // Store it in the file system
 			var pcb = new PCB(getNewPID());
 			
@@ -109,7 +109,7 @@ function krnCreateProcess(hex_codes) {
 			krnWriteFile("@process" + pcb.pid, data);
 			
 			_residency[pcb.pid] = pcb;
-			krnInterruptHandler(CONSOLE_DISPLAY_IRQ, "Process created in file '" + filename + "'. PID: " + pcb.pid);
+			krnInterruptHandler(CONSOLE_DISPLAY_IRQ, "Process created in File System. PID: " + pcb.pid + " with priority " + pcb.priority);
 		}
 		
 	} else { // Too Long
@@ -233,9 +233,17 @@ function krnInterruptHandler(irq, params) {
 					_ready_queue.push(_ready_queue.shift());
 				}
 				
-				if (params.partion === null) {
-					_MemoryManager.roll_out();
-					_MemoryManager.roll_in(params);
+				if (params.partition === undefined || params.partition === null) {
+					var partition = _MemoryManager.get_empty_partition();
+					
+					if (partition === undefined || partition === null) {
+						var pcb = get_least_important_pcb();
+						
+						_MemoryManager.roll_out(pcb);
+						_MemoryManager.roll_in(params, _MemoryManager.get_empty_partition());
+					} else {
+						_MemoryManager.roll_in(params, partition);
+					}
 				}
 			}
 			break;
@@ -254,8 +262,6 @@ function krnTimerISR() // The built-in TIMER (not clock) Interrupt Service Routi
 {
     // Check multiprogramming parameters and enforce quanta here. Call the scheduler / context switch here if necessary.
 }
-
-
 
 //
 // System Calls... that generate software interrupts via tha Application Programming Interface library routines.
@@ -306,4 +312,27 @@ function krnOSTrapError(msg) {
 // Return current PID then increment it for the next process
 function getNewPID() {
 	return _PID++;
+}
+
+// Finds the pcb that will be rolled out for a  roll in
+function get_least_important_pcb() {
+	var worst_pcb;
+	for (pid in _residency) {
+		if (_residency[pid].partition !== undefined && _residency[pid].partition !== null) {
+			worst_pcb = _residency[pid];
+		}
+	}
+	return worst_pcb;
+}
+
+// Sorts the array based on highest priority value
+function sort_ready_queue() {
+	if (_SCHEDULE === "priority") {
+		_ready_queue = _ready_queue.sort(function(a,b) {return b.priority - a.priority});
+	}
+	
+	if (_CurrentProcess !== nextProcess && _ready_queue.length > 0) {
+		var nextProcess = _ReadyQueue[0];
+		_KernelInterruptQueue.enqueue(new Interrupt(CONTEXT_SWITCH_IRQ, nextProcess.pid));
+	}
 }
