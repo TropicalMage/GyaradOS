@@ -101,6 +101,7 @@ function krnCreateProcess(hex_codes, priority) {
 			krnInterruptHandler(CONSOLE_DISPLAY_IRQ, "Process created in Memory. PID: " + pcb.pid + " with priority " + pcb.priority);
 		} else { // Store it in the file system
 			var pcb = new PCB(getNewPID());
+			pcb.priority = priority;
 			
 			var data = hex_codes.join(" ");
 			
@@ -161,7 +162,7 @@ function krnRotateProcess() {
 	// Set the current pcb and the context to the front of the queue
 	_curr_pcb = _ready_queue[0];
 	
-	hostLog("Schedule Swap to " + _curr_pcb.pid);
+	hostLog("RR Swap to " + _curr_pcb.pid);
 	_KernelInterruptQueue.enqueue(new Interrupt(CONTEXT_SWITCH_IRQ, _curr_pcb));
 }
 
@@ -325,14 +326,11 @@ function get_least_important_pcb() {
 	return worst_pcb;
 }
 
-// Sorts the array based on highest priority value
+/* // Sorts the array based on highest priority value
 function sort_ready_queue() {
-	if (_SCHEDULE === "priority") {
-		_ready_queue = _ready_queue.sort(function(a,b) {return b.priority - a.priority});
-	}
 	
 	if (_CurrentProcess !== nextProcess && _ready_queue.length > 0) {
 		var nextProcess = _ReadyQueue[0];
 		_KernelInterruptQueue.enqueue(new Interrupt(CONTEXT_SWITCH_IRQ, nextProcess.pid));
 	}
-}
+} */

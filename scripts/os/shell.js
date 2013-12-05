@@ -535,7 +535,6 @@ function shellLoad(args) {
 			});
 			
 			if (invalid) {return;}
-		
 			krnCreateProcess(hex_pairs, priority);
         } else {
 			var text = "Fail: Try putting something in the UPI."

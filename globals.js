@@ -10,9 +10,9 @@
 
 // Global CONSTANTS
 var APP_NAME = "GyaradOS";
-var APP_VERSION = "0.37";
+var APP_VERSION = "0.40";
 
-var CPU_CLOCK_INTERVAL = 10; // ms
+var CPU_CLOCK_INTERVAL = 20; // ms
 
 // IRQ enums made with _KernelInterruptQueue.enqueue(new Interrupt(enum, params);
 var TIMER_IRQ = 0;
