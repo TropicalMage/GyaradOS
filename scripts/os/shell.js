@@ -492,30 +492,26 @@ function shellLoad(args) {
         if (user_input !== "") { // There is something in the UPI
             var hex_pairs = user_input.split(" "); // Array of all of the hex code pairs
             
-            if (hex_pairs.length < _PARTITION_SIZE) {
-                // Check each set to see if its only a pair of hexidecimals
-                var invalid = false;
-                hex_pairs.forEach(function(hex_set) {
-                    if(hex_set.length !== 2) {
-                        invalid = true;
-                        return _StdIn.putText("Invalid: Two hex chars only.");
-                    }
-                    if (!hex_set[0].match("[0-9a-fA-F]")) {
-                        invalid = true;
-                        return _StdIn.putText("Invalid: " + hex_set[0] + " needs to be in hex. ");
-                    }
-                    if (!hex_set[1].match("[0-9a-fA-F]")) {
-                        invalid = true;
-                        return _StdIn.putText("Invalid: " + hex_set[1] + " needs to be in hex. ");
-                    }
-                });
-                
-                if (invalid) {return;}
-            
-                krnCreateProcess(hex_pairs);
-            } else {
-                return _StdIn.putText("Invalid: Insufficient memory space.");
-            }
+			// Check each set to see if its only a pair of hexidecimals
+			var invalid = false;
+			hex_pairs.forEach(function(hex_set) {
+				if(hex_set.length !== 2) {
+					invalid = true;
+					return _StdIn.putText("Invalid: Two hex chars only.");
+				}
+				if (!hex_set[0].match("[0-9a-fA-F]")) {
+					invalid = true;
+					return _StdIn.putText("Invalid: " + hex_set[0] + " needs to be in hex. ");
+				}
+				if (!hex_set[1].match("[0-9a-fA-F]")) {
+					invalid = true;
+					return _StdIn.putText("Invalid: " + hex_set[1] + " needs to be in hex. ");
+				}
+			});
+			
+			if (invalid) {return;}
+		
+			krnCreateProcess(hex_pairs);
         } else {
             return _StdIn.putText("Invalid: Try putting something in the UPI.");
         }
@@ -526,12 +522,8 @@ function shellLoad(args) {
 
 function shellRun(args) {
     if (args.length === 1) { // Need only an int
-        if (_residency.length > args[0]) {
+        if (krnFetchProcess(args[0]) !== null) { // It's in the residency list
             var pcb = _residency[args[0]];
-			
-			if(pcb.state !== "Waiting") {
-				return _StdIn.putText("Fail: This program has already ran.");
-			}
 			
 			_ready_queue.push(pcb);
             _curr_pcb = pcb;
@@ -547,13 +539,14 @@ function shellRun(args) {
 }
 
 function shellRunAll(args) {
-	for(var i = 0; i < _residency.length; i++) {
+	for(var i in _residency) {
 		var pcb = _residency[i];
 		if (pcb.state === "Waiting") {
 			_ready_queue.push(pcb);
 		}
 	}
-	if(_ready_queue.length === 0) {
+	
+	if(_ready_queue.size === 0) {
 		return _StdIn.putText("Fail: No program is waiting to be executed.");
 	}
 	
@@ -609,7 +602,7 @@ function shellReadFile(args) {
 		text = "Fail: Names can only have 1 word"
 		return _StdIn.putText(" { " + text + " }");
 	}
-	text = krnReadFile(args);
+	text = krnReadFile(args[0]);
 	return _StdIn.putText(" { " + text + " }");
 }
 

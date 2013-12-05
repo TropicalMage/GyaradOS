@@ -10,7 +10,7 @@
 
 // Global CONSTANTS
 var APP_NAME = "GyaradOS";
-var APP_VERSION = "0.34";
+var APP_VERSION = "0.36";
 
 var CPU_CLOCK_INTERVAL = 10; // ms
 
@@ -44,7 +44,7 @@ var _curr_pcb; 					// pointer to the current PCB
 var _PARTITION_SIZE = 256;
 var _NUM_PARTITIONS = 3; 		// Number of different sections in memory
 var _PID = 0; 					// The incrementor for making unique process ids
-var _residency = []; 			// A mapping for all avaliable PCBs
+var _residency = {}; 			// A mapping for all avaliable PCBs
 var _PARTITIONS = []; 			// Array of Partition Objects #Mem Man
 var _ready_queue = []; 			// The queue of all ready processes
 
@@ -68,8 +68,21 @@ var _KernelBuffers = null;
 var _KernelInputQueue = null;
 
 
-// Global Device Driver Objects - page 12
+// Global Device Driver Objects
 var krnKeyboardDriver = null;
+var krnFileSystemDriver = null;
 
 // For testing...
 var _GLaDOS = null;
+
+// get PCB from pid
+function krnFetchProcess(pid) {
+  if(typeof _residency[pid] == 'undefined') {
+    // does not exist
+    hostLog("pid " + pid + " cannot be found")
+      return null;
+  } else {
+    // does exist
+    return _residency[pid];    
+  }
+}

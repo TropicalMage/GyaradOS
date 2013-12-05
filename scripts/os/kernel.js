@@ -84,26 +84,37 @@ function krnOnCPUClockPulse() {
 }
 
 function krnCreateProcess(hex_codes) {
-    var partition = _MemoryManager.get_empty_partition();
-    if (partition === null) {return -1;}
-    
-    var start_address = partition.start;
-    var end_address = partition.end;
-    
-    var pcb = new PCB(getNewPID(), start_address, end_address);
-	
-    _curr_pcb = pcb;
-    
-    var curr_offset = 0;
-    hex_codes.forEach(function(hex_pair) {
-        _MemoryManager.save_hex_pair(curr_offset, hex_pair);
-        curr_offset++;
-    });
-    
-    partition.empty = false;
-    
-    _residency[pcb.pid] = pcb;
-    return _StdIn.putText("Unique PID: " + pcb.pid);
+	if (hex_codes.length < _PARTITION_SIZE) { 
+		var partition = _MemoryManager.get_empty_partition();
+		if (partition !== null) {
+			var pcb = new PCB(getNewPID(), partition);
+			
+			_curr_pcb = pcb;
+			var curr_offset = 0;
+			
+			hex_codes.forEach(function(hex_pair) {
+				_MemoryManager.save_hex_pair(_curr_pcb.partition, curr_offset, hex_pair);
+				curr_offset++;
+			});
+		
+			_residency[pcb.pid] = pcb;
+			krnInterruptHandler(CONSOLE_DISPLAY_IRQ, "Process created in Memory. PID: " + pcb.pid);
+		} else { // Store it in the file system
+			var pcb = new PCB(getNewPID());
+			
+			var data = hex_codes.join(" ");
+			
+			var filename = "@process" + pcb.pid;
+			krnCreateFile(filename);
+			krnWriteFile("@process" + pcb.pid, data);
+			
+			_residency[pcb.pid] = pcb;
+			krnInterruptHandler(CONSOLE_DISPLAY_IRQ, "Process created in file '" + filename + "'. PID: " + pcb.pid);
+		}
+		
+	} else { // Too Long
+        krnInterruptHandler(CONSOLE_DISPLAY_IRQ, "Fail: Code too long");
+	}
 }
 
 function krnKillProcess(pid) {
@@ -112,10 +123,19 @@ function krnKillProcess(pid) {
 	for(var i = 0; i < _ready_queue.length; i++) {
 		if(_ready_queue[i].pid === pid) {index = i;}
 	}
+	
 	if(index != -1) {
-		// Now we have to find the parition with the destroyed PID and clear it. 
-		var partition = _MemoryManager.get_partition_by_PCB(_ready_queue[index]);
-		_MemoryManager.clear_partition(partition);
+		_StdIn.advanceLine();
+		
+		delete _residency[pid];
+		
+		if (_ready_queue[index].partition !== null) { // in Mem
+			// Now we have to find the parition with the destroyed PID and clear it. 
+			var partition = _MemoryManager.get_partition_by_PCB(_ready_queue[index]);
+			_MemoryManager.clear_partition(partition);
+		} else { // in FS
+			krnDeleteFile("@process" + _ready_queue[i].pid)
+		}
 		
 		// Remove it from the ready queue
 		_ready_queue.splice(index, index + 1);
@@ -125,14 +145,12 @@ function krnKillProcess(pid) {
 			_curr_pcb = _ready_queue[0];
 			_KernelInterruptQueue.enqueue(new Interrupt(CONTEXT_SWITCH_IRQ, _curr_pcb));
 		}
-		_StdIn.advanceLine();
 	} else {
 		return _StdIn.putText("Fail: Can't find given pid");
 	}
 }
 
 function krnRotateProcess() {
-
 	_ready_queue[0].state = "Ready";
 	
 	// Move the queue so that the front moves to the end of the queue
@@ -187,7 +205,6 @@ function krnInterruptHandler(irq, params) {
 			
 		case PROCESS_SUCCESS_IRQ: // params: pid
 			_StdIn.putText(" { Process Done | PID: " + params + " }");
-			_StdIn.advanceLine();
 			
 			krnKillProcess(params);
 			
@@ -213,8 +230,12 @@ function krnInterruptHandler(irq, params) {
 			if(_ready_queue.length > 0) {
 				// Rotates the queue so that it reads properly before the interrupt occurs
 				while(_curr_pcb.pid !== _ready_queue[0].pid) {
-					console.log(_curr_pcb.pid, _ready_queue[0].pid);
 					_ready_queue.push(_ready_queue.shift());
+				}
+				
+				if (params.partion === null) {
+					_MemoryManager.roll_out();
+					_MemoryManager.roll_in(params);
 				}
 			}
 			break;

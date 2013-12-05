@@ -54,7 +54,7 @@ function krnCreateFile(filename) {
 
 function krnReadFile(filename) {
 	var curr_tsb = findDirectory(filename);
-	if (curr_tsb !== null) {
+	if (curr_tsb.key !== "000") {
 		curr_tsb = new TSB(curr_tsb.get_next_block());
 		if (curr_tsb !== null) {
 			var datas = "";
@@ -85,22 +85,23 @@ function krnWriteFile(filename, data) {
 	}
 	
 	
-	var curr_tsb = findDirectory(filename);
-	if (curr_tsb.key !== "000") {
+	var tsb = findDirectory(filename);
+	if (tsb.key !== "000") {
 		// Need to remove any chance of getting dead blocks
 		krnClearFile(filename);
 		
-		curr_tsb = new TSB(curr_tsb.get_next_block());
+		tsb = new TSB(tsb.get_next_block());
 		for (var i = 0; i < sectioned_data.length; i++) {
 			// Write to the currently pointing tsb
-			curr_tsb.set_data(sectioned_data[i]); 
+			tsb.set_data(sectioned_data[i]); 
 			
 			if (i < sectioned_data.length - 1) { 
 				next_block = getFreeBlock();
-				curr_tsb.set_next_block(next_block.key);
-				curr_tsb = next_block;
+				tsb.set_next_block(next_block.key);
+				tsb = next_block;
 			}
 		}
+		
 		var text = "File '" + filename + "' overwritten";
 		return text;
 	} else {
@@ -125,6 +126,7 @@ function krnBootUpFileSystem() {
 // Deletes a file and all of its connected sections
 function krnDeleteFile(filename) {
 	var curr_tsb = findDirectory(filename);
+	
 	if (curr_tsb.key !== "000") {
 		var next_tsb = curr_tsb;
 		while(curr_tsb.key !== "000") {
@@ -132,6 +134,8 @@ function krnDeleteFile(filename) {
 			curr_tsb = new TSB(curr_tsb.get_next_block());
 			next_tsb.clear();
 		}
+	
+	
 		var text = "File '" + filename + "' deleted";
 		return text;
 	} else {
@@ -151,17 +155,17 @@ function krnFormatFileSystem() {
 	}
 	var text = "File System Formatted";
 	return text;
-}
+} // DELETE ANY PROCESSES FROM RESIDENCY IN FS
 
 /********************** HELPER FUNCTIONS **********************/
 function findDirectory(filename) {
-	filename = filename.toString()
 	
 	var track = 0;
 	for (var sector = 0; sector < 8; sector++) {
 		for (var block = 0; block < 8; block++) {
 			var key = track + "" + sector + "" + block;
 			var tsb = new TSB(key);
+			
 			if (tsb.is_used() && tsb.get_data() === filename) {
 				return tsb;
 			}

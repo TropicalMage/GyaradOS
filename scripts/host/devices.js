@@ -64,16 +64,12 @@ function hostClockPulse() {
 	for(var i = 0; i < _ready_queue.length; i++) {
 		document.getElementById("pid" + i).innerHTML = _ready_queue[i].pid;
 		document.getElementById("state" + i).innerHTML = _ready_queue[i].state;
-		document.getElementById("begin" + i).innerHTML = _ready_queue[i].begin;
-		document.getElementById("end" + i).innerHTML = _ready_queue[i].end;
 		document.getElementById("pc" + i).innerHTML = _ready_queue[i].PC;
 	}
 	// 		Dashes if you have no remaining processes
 	for(var i = _ready_queue.length; i < 3; i++) {
 		document.getElementById("pid" + i).innerHTML = "-";
 		document.getElementById("state" + i).innerHTML = "-";
-		document.getElementById("begin" + i).innerHTML = "-";
-		document.getElementById("end" + i).innerHTML = "-";
 		document.getElementById("pc" + i).innerHTML = "-";
 	}
 }

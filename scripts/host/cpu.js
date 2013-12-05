@@ -20,7 +20,6 @@ function Cpu() {
     this.Yreg  = 0;     // Y register (hex)
     this.Zflag = 0;     // Z ero flag (Think of it as "isZero".)
     this.invalid = "";  // Determines if a currently executing program should continue
-    this.curr_partition = 0;
     
     this.init = function() {
         this.PC    = 0;
@@ -172,7 +171,7 @@ store_accum_in_memory = function() {
         mem_string = "0" + mem_string;
     }
     
-    _MemoryManager.save_hex_pair(index, mem_string);
+    _MemoryManager.save_hex_pair(_curr_pcb.partition, index, mem_string);
     
     return hex_params.length;
 };
@@ -308,7 +307,7 @@ increment_value_at_byte = function() {
         mem_string = "0" + mem_string;
     }
     
-    _MemoryManager.save_hex_pair(mem_index, mem_string);
+    _MemoryManager.save_hex_pair(_curr_pcb.partition, mem_index, mem_string);
     
     return hex_params.length;
 };

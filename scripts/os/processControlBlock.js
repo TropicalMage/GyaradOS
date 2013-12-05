@@ -1,9 +1,8 @@
 // The class that controls a single process
-function PCB (pid, begin, end)  {
+function PCB (pid, partition)  {
 	this.pid	= pid;  	// Process ID (int)
-	this.begin	= begin;  	// Starting Address (int)
-	this.end    = end;	    // Last Address (int)
 	this.state = "Waiting"
+	this.partition = partition;
 	
 	// Future things to save the state of the Process Control Block
     this.PC    = 0;
