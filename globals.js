@@ -10,7 +10,7 @@
 
 // Global CONSTANTS
 var APP_NAME = "GyaradOS";
-var APP_VERSION = "0.40";
+var APP_VERSION = "0.41";
 
 var CPU_CLOCK_INTERVAL = 20; // ms
 

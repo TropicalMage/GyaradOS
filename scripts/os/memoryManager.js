@@ -82,14 +82,14 @@ function MemoryManager() {
 		pcb.partition = null;
 
 		// and write the codes into the file
-		krnCreateFile("@process" + pcb.pid);
-		krnWriteFile("@process" + pcb.pid, data);
+		krnCreateFile("process" + pcb.pid);
+		krnWriteFile("process" + pcb.pid, data);
 	};
 	
 	// To the memory
 	this.roll_in = function(pcb, partition) {
-		var hex_codes = krnReadFile("@process" + pcb.pid).split(" ");
-		krnDeleteFile("@process" + pcb.pid);
+		var hex_codes = krnReadFile("process" + pcb.pid).split(" ");
+		krnDeleteFile("process" + pcb.pid);
 
 		// put codes in memory
 		var currentAddress = 0;

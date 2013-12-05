@@ -584,8 +584,8 @@ function shellRunAll(args) {
 
 function shellKill(args) {
 	var intRegex = /^\d+$/;
-	if (intRegex.test(pid)) { // It's an integer
-		pid = parseInt(pid);
+	if (intRegex.test(args[0])) { // It's an integer
+		pid = parseInt(args[0]);
 		krnKillProcess(pid);
 	} else {
 		return _StdIn.putText("Fail: Please input a pid");

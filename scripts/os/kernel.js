@@ -105,9 +105,9 @@ function krnCreateProcess(hex_codes, priority) {
 			
 			var data = hex_codes.join(" ");
 			
-			var filename = "@process" + pcb.pid;
+			var filename = "process" + pcb.pid;
 			krnCreateFile(filename);
-			krnWriteFile("@process" + pcb.pid, data);
+			krnWriteFile("process" + pcb.pid, data);
 			
 			_residency[pcb.pid] = pcb;
 			krnInterruptHandler(CONSOLE_DISPLAY_IRQ, "Process created in File System. PID: " + pcb.pid + " with priority " + pcb.priority);
@@ -130,16 +130,16 @@ function krnKillProcess(pid) {
 		
 		delete _residency[pid];
 		
-		if (_ready_queue[index].partition !== null) { // in Mem
+		if (_ready_queue[index].partition !== null && _ready_queue[index].partition !== undefined) { // in Mem
 			// Now we have to find the parition with the destroyed PID and clear it. 
 			var partition = _MemoryManager.get_partition_by_PCB(_ready_queue[index]);
 			_MemoryManager.clear_partition(partition);
 		} else { // in FS
-			krnDeleteFile("@process" + _ready_queue[i].pid)
+			krnDeleteFile("process" + _ready_queue[index].pid)
 		}
 		
 		// Remove it from the ready queue
-		_ready_queue.splice(index, index + 1);
+		_ready_queue.splice(index, 1);
 		
 		// Set the current pcb and the context to the front of the queue
 		if(index === 0 && _ready_queue.length > 0) {
