@@ -36,7 +36,7 @@ function Cpu() {
 		
 		if (_SCHEDULE === "priority") {
 			_ready_queue[0].state = "Ready";
-			_ready_queue = _ready_queue.sort(function(a,b) {return b.priority - a.priority});
+			_ready_queue = _ready_queue.sort(function(a,b) {return a.priority - b.priority});
 			_ready_queue[0].state = "Running";
 			_curr_pcb = _ready_queue[0];
 		} else {
